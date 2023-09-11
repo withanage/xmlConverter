@@ -1,0 +1,8 @@
+msgid "plugins.generic.tei2Jats.displayName"
+msgstr "Tei2Jats Convertor Plugin"
+
+msgid "plugins.generic.tei2Jats.description"
+msgstr "This Plugin convert TEI to JATS"
+
+msgid "plugins.generic.tei2Jats.setting.description"
+msgstr "Tei2Jats validation settings"

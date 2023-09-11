@@ -3,15 +3,13 @@ namespace APP\plugins\generic\tutorialExample;
 
 use PKP\plugins\GenericPlugin;
 
-class TutorialExamplePlugin extends GenericPlugin
+class Tei2JatsPlugin extends GenericPlugin
 {
     public function register($category, $path, $mainContextId = NULL)
 	{
-        // Register the plugin even when it is not enabled
         $success = parent::register($category, $path);
 
         if ($success && $this->getEnabled()) {
-            // Do something when the plugin is enabled
         }
 
         return $success;
@@ -25,7 +23,7 @@ class TutorialExamplePlugin extends GenericPlugin
      */
     public function getDisplayName()
 	{
-        return 'Tutorial Example';
+		return __('plugins.generic.tei2Jats.displayName');
     }
 
     /**
@@ -36,6 +34,6 @@ class TutorialExamplePlugin extends GenericPlugin
      */
     public function getDescription()
 	{
-        return 'This plugin is an example created for a tutorial on how to create a plugin.';
+		return __('plugins.generic.tei2Jats.description');
     }
 }

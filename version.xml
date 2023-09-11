@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE version SYSTEM "../../../lib/pkp/dtd/pluginVersion.dtd">
 <version>
-	<application>tutorialExample</application>
+	<application>tei2Jats</application>
 	<type>plugins.generic</type>
 	<release>1.0.0.0</release>
-	<date>2023-05-15</date>
+	<date>2023-09-11</date>
 </version>
