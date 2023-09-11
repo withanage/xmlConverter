@@ -6,3 +6,6 @@ msgstr "This Plugin convert TEI to JATS"
 
 msgid "plugins.generic.tei2Jats.setting.description"
 msgstr "Tei2Jats validation settings"
+
+msgid "plugins.generic.teitojats.button.convertToTei"
+msgstr "Create  Jats file from Tei"
