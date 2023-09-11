@@ -1,7 +1,6 @@
 <?php
-namespace APP\plugins\generic\tutorialExample;
 
-use PKP\plugins\GenericPlugin;
+import('lib.pkp.classes.plugins.GenericPlugin');
 
 class Tei2JatsPlugin extends GenericPlugin
 {
