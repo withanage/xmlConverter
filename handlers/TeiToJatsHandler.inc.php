@@ -11,10 +11,12 @@ class TeiToJatsHandler extends Handler
 
 	function __construct()
 	{
+
 		parent::__construct();
 
-		$this->plugin = PluginRegistry::getPlugin('generic', LATEX_CONVERTER_PLUGIN_NAME);
-		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT,ROLE_ID_SITE_ADMIN],['convert']);
+		$this->plugin = PluginRegistry::getPlugin('generic', 'teitojatsplugin');
+		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT,ROLE_ID_SITE_ADMIN],$this->allowedMethods);
+
 	}
 
 	function authorize($request, &$args, $roleAssignments): bool
@@ -41,15 +43,9 @@ class TeiToJatsHandler extends Handler
 		));
 	}
 
-	/**
-	 * Converts LaTex file to pdf
-	 * @param $args
-	 * @param $request
-	 * @return JSONMessage
-	 */
 	public function convert($args, $request): JSONMessage
 	{
-		$fileId = (int) $request->getUserVar('fileId');
+		$fileId = (int)$request->getUserVar('fileId');
 		$submissionFiles = Services::get('submissionFile')->getMany([
 			'fileIds' => [$fileId],
 		]);
@@ -58,6 +54,8 @@ class TeiToJatsHandler extends Handler
 		$fileManager = new PrivateFileManager();
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
 
+		$json = new JSONMessage(true);
+		return $json;
 	}
 }
 

@@ -109,15 +109,16 @@ class TeiToJatsPlugin extends GenericPlugin
 	{
 		$page = $args[0];
 		$op = $args[1];
-
-		$pageOperator = "$page/$op";
-		switch ($pageOperator) {
-			case "teiToJatsConverter/convert":
-				$this->import('handlers/TeiToJatsHandler');
-				define('HANDLER_CLASS', 'TeiToJatsHandler');
-				return true;
-			default:
-				break;
+		if($page && $args) {
+			$pageOperator = "$page/$op";
+			switch ($pageOperator) {
+				case "teiToJatsConverter/convert":
+					$this->import('handlers/TeiToJatsHandler');
+					define('HANDLER_CLASS', 'TeiToJatsHandler');
+					return true;
+				default:
+					break;
+			}
 		}
 
 		return false;
