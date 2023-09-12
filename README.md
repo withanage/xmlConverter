@@ -1,6 +1,6 @@
 # Intoroduction
 
-This plugin converts a TEI XML file to JATS xm`l files using métopes xslts style-sheets.
+This plugin converts a TEI XML file to JATS xm`l files using métopes xslt style-sheets.
 
 # Installation
 ```bash
