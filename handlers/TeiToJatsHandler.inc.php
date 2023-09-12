@@ -7,7 +7,7 @@ class TeiToJatsHandler extends Handler
 {
 	protected object $plugin;
 
-	protected array $allowedMethods = [ 'convert'];
+	protected array $allowedMethods = ['convert'];
 
 	function __construct()
 	{
@@ -15,7 +15,7 @@ class TeiToJatsHandler extends Handler
 		parent::__construct();
 
 		$this->plugin = PluginRegistry::getPlugin('generic', 'teitojatsplugin');
-		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT,ROLE_ID_SITE_ADMIN],$this->allowedMethods);
+		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN], $this->allowedMethods);
 
 	}
 
@@ -51,8 +51,50 @@ class TeiToJatsHandler extends Handler
 		]);
 		$submissionFile = $submissionFiles->current();
 
+
+		import('lib.pkp.classes.file.PrivateFileManager');
 		$fileManager = new PrivateFileManager();
+		$submissionId = $submissionFile->getData('submissionId');
+		$submission = Services::get('submission')->get($submissionId);
+
+
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
+		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();
+		$tmpfname = tempnam(sys_get_temp_dir(), 'tei2jats');
+		$teitojats = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $filePath $pluginPath/xslt/TEI-Commons_2_TEI-Metopes.xsl -o:$tmpfname";
+		shell_exec($teitojats);
+		$genreId = $submissionFile->getData('genreId');
+		// Add new JATS XML file
+		$submissionDir = Services::get('submissionFile')->getSubmissionDir($submission->getData('contextId'), $submissionId);
+		$newFileId = Services::get('file')->add(
+			$tmpfname,
+			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.xml'
+		);
+
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
+		$newSubmissionFile = $submissionFileDao->newDataObject();
+		$newName = [];
+		foreach ($submissionFile->getData('name') as $localeKey => $name) {
+			$newName[$localeKey] = pathinfo($name)['filename'] . '-jats.xml';
+		}
+
+		$newSubmissionFile->setAllData(
+			[
+				'fileId' => $newFileId,
+				'assocType' => $submissionFile->getData('assocType'),
+				'assocId' => $submissionFile->getData('assocId'),
+				'fileStage' => $submissionFile->getData('fileStage'),
+				'mimetype' => 'application/xml',
+				'locale' => $submissionFile->getData('locale'),
+				'genreId' => $genreId,
+				'name' => $newName,
+				'submissionId' => $submissionId,
+			]
+		);
+
+		$newSubmissionFile = Services::get('submissionFile')->add($newSubmissionFile, $request);
+
+		unlink($tmpfname);
 
 		$json = new JSONMessage(true);
 		return $json;

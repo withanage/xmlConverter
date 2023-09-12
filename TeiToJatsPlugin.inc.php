@@ -21,7 +21,9 @@ class TeiToJatsPlugin extends GenericPlugin
 		return false;
 	}
 
-
+	function getPluginUrl($request) {
+		return $request->getBaseUrl() . '/' . $this->getPluginPath();
+	}
 	public function getDisplayName()
 	{
 		return __('plugins.generic.tei2Jats.displayName');
