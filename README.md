@@ -12,9 +12,9 @@ php  lib/pkp/tools/installPluginVersion.php plugins/generic/teiToJats/version.xm
 # Contributors
 - Jeanette Hatherill, Coalition Publica
 - Edith Cannet, IR Métopes
-- Dominique Roux, IR Métopes
 - Marisa Tutt, PKP
 - Martin Brändle, University of Zurich
-- Dulip Withanage, TIB
+- Dominique Roux, IR Métopes
 - Ipula Ranasinghe, TIB
+- Dulip Withanage, TIB
 
