@@ -63,11 +63,14 @@ class TeiToJatsHandler extends Handler
 		$tmpfname = tempnam(sys_get_temp_dir(), 'tei2jats');
 		$teitojats = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $filePath $pluginPath/xslt/TEI-Commons_2_TEI-Metopes.xsl -o:$tmpfname";
 		shell_exec($teitojats);
+		$tmpfname2 = tempnam(sys_get_temp_dir(), 'tei2jats2');
+		$teitojats2 = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $tmpfname $pluginPath/xslt/TEI-Metopes_2_JATS-Publishing1-3.xsl -o:$tmpfname2";
+		shell_exec($teitojats2);
 		$genreId = $submissionFile->getData('genreId');
 		// Add new JATS XML file
 		$submissionDir = Services::get('submissionFile')->getSubmissionDir($submission->getData('contextId'), $submissionId);
 		$newFileId = Services::get('file')->add(
-			$tmpfname,
+			$tmpfname2,
 			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.xml'
 		);
 

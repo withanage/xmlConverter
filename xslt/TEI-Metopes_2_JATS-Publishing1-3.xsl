@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- 
+<!--
 Code source sous licence CECILL-C. Veuillez vous référer au fichier LICENSE.txt pour plus d'informations
 Source code under CECILL-C licence. Please refer to the LICENSE.txt file for more information.
  -->
 
-<xsl:stylesheet version="2.0" 
+<xsl:stylesheet version="2.0"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-                xmlns:exist="http://exist.sourceforge.net/NS/exist" 
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:exist="http://exist.sourceforge.net/NS/exist"
                 xmlns=""
-                xpath-default-namespace="http://www.tei-c.org/ns/1.0" 
-                xmlns:tei="http://www.tei-c.org/ns/1.0" 
-                xmlns:mml="http://www.w3.org/1998/Math/MathML" 
-                xmlns:xlink="http://www.w3.org/1999/xlink" 
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                xpath-default-namespace="http://www.tei-c.org/ns/1.0"
+                xmlns:tei="http://www.tei-c.org/ns/1.0"
+                xmlns:mml="http://www.w3.org/1998/Math/MathML"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xmlns:xi="http://www.w3.org/2001/XInclude"
                 xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
                 exclude-result-prefixes="xs exist tei xi">
 
 
     <!--exclude-result-prefixes="#all"-->
-    
-    
+
+
   <!--
         Written by Martin Holmes, University of Victoria Humanities Computing and
     Media Centre, beginning in 2008.
@@ -52,8 +52,8 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
 <!-- param commandes -->
     <xsl:param name="directory"/>
 
-  <xsl:output method="xml" doctype-public="-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.3 20210610//EN" doctype-system="https://jats.nlm.nih.gov/publishing/1.3/JATS-journalpublishing1-3.dtd" xpath-default-namespace="" indent="no"></xsl:output>
-    
+  <xsl:output method="xml" doctype-public="-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.3 20210610//EN" doctype-system="https://jats.nlm.nih.gov/publishing/1.3/JATS-journalpublishing1-3.dtd" xpath-default-namespace="" indent="yes"></xsl:output>
+
   <xsl:template match="/">
     <article dtd-version="1.3" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" specific-use="ojs-display" article-type="research-article">
       <xsl:if test="//language/@ident">
@@ -261,12 +261,12 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
 <!-- If there is an abstract, copy it in here for the sake of completeness. -->
        <xsl:variable name="fpage" select="number(substring-before(//dim[@type='pagination'],'-'))"/>
        <xsl:variable name="lpage" select="number(substring-after(//dim[@type='pagination'],'-'))"/>
-            
+
             <xsl:if test="//dim[@type='pagination'] != ''">
               <fpage><xsl:value-of select="$fpage"/></fpage>
               <lpage><xsl:value-of select="$lpage"/></lpage>
             </xsl:if>
-            
+
             <xsl:if test="//date[@type='received'] or //date[@type='accepted']">
             <history>
                 <xsl:for-each select="//date[@type='received']|//date[@type='accepted']">
@@ -278,7 +278,7 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
                 </xsl:for-each>
             </history>
             </xsl:if>
-            
+
             <xsl:for-each select="TEI/text/front/div[@type='resume_motscles']/p[@style='txt_Resume']">
             <abstract>
                 <p><xsl:apply-templates/></p>
@@ -464,7 +464,7 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
 
   <xsl:template match="p | ab">
     <xsl:choose>
-        <xsl:when test="parent::div[@type='resume_motscles']">     
+        <xsl:when test="parent::div[@type='resume_motscles']">
             <xsl:apply-templates/>
         </xsl:when>
         <xsl:when test="child::code">
@@ -516,7 +516,7 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
           </xsl:element>
           </xsl:if> -->
         <xsl:element name="table">
-          
+
             <xsl:apply-templates/>
         </xsl:element>
       </xsl:element>
@@ -538,13 +538,13 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
       </xsl:if>
       </xsl:if>
     </xsl:template>
-    
+
     <xsl:template match="table/row">
         <xsl:element name="tr">
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="table/row/cell">
       <xsl:choose>
         <xsl:when test="parent::row/@role='label'">
@@ -572,13 +572,13 @@ Source code under CECILL-C licence. Please refer to the LICENSE.txt file for mor
   <xsl:template match="table/head" mode="inTable">
   	<xsl:apply-templates/>
   </xsl:template>
-  
+
   <xsl:template match="table/head"/>
-  
+
   <xsl:template match="p[@style='txt_Legende']" mode="inTable">
   	<xsl:apply-templates/>
   </xsl:template>
-  
+
 <xsl:template match="p[@style='table-credits-sources']" mode="inTable">
   	<xsl:apply-templates/>
   </xsl:template>
@@ -659,7 +659,7 @@ to simplify a bit. -->
     </xsl:element>
 -->
 <!--</xsl:template>-->
-    
+
 <!-- fin custom metopes -->
 
   <xsl:template match="ref">
@@ -678,8 +678,8 @@ because NLM handles them differently. -->
 be given the recommended @ref-type. -->
           <xsl:if test="//back//biblStruct[@xml:id = $targId]"><xsl:attribute name="ref-type">bibr</xsl:attribute></xsl:if>
 <!-- lien ref. bibl -->
-          <xsl:if test="@type='bibl'"><xsl:attribute name="ref-type">bibr</xsl:attribute></xsl:if> 
-          <xsl:if test="@type='fig'"><xsl:attribute name="ref-type">fig</xsl:attribute></xsl:if> 
+          <xsl:if test="@type='bibl'"><xsl:attribute name="ref-type">bibr</xsl:attribute></xsl:if>
+          <xsl:if test="@type='fig'"><xsl:attribute name="ref-type">fig</xsl:attribute></xsl:if>
 <!-- We have to be careful of embedded tags, because xref has a very
      impoverished content model. -->
           <xsl:apply-templates />
@@ -813,7 +813,7 @@ be given the recommended @ref-type. -->
     </xsl:element>
   </xsl:template>
 
-<!-- tei:head > jats:label 
+<!-- tei:head > jats:label
     tei:p de légende > jats: caption / p
 -->
   <xsl:template match="figure/head"  mode="inFigure">
@@ -839,7 +839,7 @@ be given the recommended @ref-type. -->
         </xsl:if>
     </caption>
 </xsl:template>
-    
+
 <xsl:template match="p[@style='txt_Legende']"/>
 <xsl:template match="p[@style='ill-credits-sources']"/>
 <xsl:template match="p[@style='table-credits-sources']"/>
@@ -1111,7 +1111,7 @@ have a shot at styling it. -->
 <!--  Superscript + italic -->
 <xsl:template match="hi[@rend='sup italic']">
     <xsl:element name="sup"><xsl:element name="italic"><xsl:apply-templates /></xsl:element></xsl:element>
-  </xsl:template> 
+  </xsl:template>
 <!-- Subscript -->
   <xsl:template match="hi[@rend='sub']">
     <xsl:element name="sub"><xsl:apply-templates /></xsl:element>
