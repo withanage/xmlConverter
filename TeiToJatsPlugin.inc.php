@@ -10,11 +10,13 @@ class TeiToJatsPlugin extends GenericPlugin
 
 		if (parent::register($category, $path, $mainContextId)) {
 			if ($this->getEnabled()) {
-				// Register callbacks.
-				HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
-				HookRegistry::register('TemplateManager::fetch', array($this, 'templateFetchCallback'));
+				$javaChecker = exec('command java --version >/dev/null && echo "yes" || echo "no"');
+				if($javaChecker=='yes') {
+					HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
+					HookRegistry::register('TemplateManager::fetch', array($this, 'templateFetchCallback'));
 
-				$this->_registerTemplateResource();
+					$this->_registerTemplateResource();
+				}
 			}
 			return true;
 		}

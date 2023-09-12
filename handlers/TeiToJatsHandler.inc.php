@@ -57,7 +57,8 @@ class TeiToJatsHandler extends Handler
 		$submissionId = $submissionFile->getData('submissionId');
 		$submission = Services::get('submission')->get($submissionId);
 
-
+		//TODO move saxon to config.inc.php
+		
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
 		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();
 		$tmpfname = tempnam(sys_get_temp_dir(), 'tei2jats');
