@@ -1,4 +1,4 @@
-# Intoroduction
+# Introduction
 
 This plugin converts a TEI XML file to JATS xm`l files using métopes xslt style-sheets.
 
