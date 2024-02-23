@@ -58,7 +58,7 @@ class TeiToJatsHandler extends Handler
 		$submission = Services::get('submission')->get($submissionId);
 
 		//TODO move saxon to config.inc.php
-		
+
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
 		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();
 		$tmpfname = tempnam(sys_get_temp_dir(), 'tei2jats');
@@ -78,8 +78,12 @@ class TeiToJatsHandler extends Handler
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 		$newSubmissionFile = $submissionFileDao->newDataObject();
 		$newName = [];
-		foreach ($submissionFile->getData('name') as $localeKey => $name) {
-			$newName[$localeKey] = pathinfo($name)['filename'] . '-jats.xml';
+		if (gettype($submissionFile->getData('name')) == 'array') {
+			foreach ($submissionFile->getData('name') as $localeKey => $name) {
+				$newName[$localeKey] = pathinfo($name)['filename'] . '-jats.xml';
+			}
+		} else {
+			$newName[$submissionFile->getData('locale')] = pathinfo($submissionFile->getData('name'))['filename'] . '-jats.xml';
 		}
 
 		$newSubmissionFile->setAllData(
