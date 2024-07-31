@@ -57,7 +57,7 @@ class TeiToJatsHandler extends Handler
 	 * @param PKPRequest $request
 	 * 
 	 */
-	public function convert($args, $request): JSONMessage
+	public function convert($args, $request)
 	{
 		/* Get informations of the file to convert */
 		$fileId = (int)$request->getUserVar('fileId');
@@ -76,22 +76,30 @@ class TeiToJatsHandler extends Handler
 		$contextId = $submission->getData('contextId');
 		$fileManager = new PrivateFileManager();
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
-		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();		
 
-		/* Convert the file TEI-Commons to JATS-Publishing */
-		$newFile = tempnam(sys_get_temp_dir(), 'teiToJats');
-		$command = "cd $pluginPath && java -jar $pluginPath/bin/saxon-he-10.6.jar $filePath $pluginPath/xslt/TEI-Commons_to_JATS-Publishing.xsl -o:$newFile";
-		shell_exec($command);
+		// Conversion
+		switch ($request->getRequestedPage()) {
+			case 'teiToJats':
+				$newFile = $this->conversion($filePath, 'teiToJats');
+				$ext = '-jats.xml';
+				break;
+			case 'jatsToTei':
+				$newFile = $this->conversion($filePath, 'jatsToTei');
+				$ext = '-tei.xml';
+				break;
+			default:
+				return new JSONMessage(false);
+		}
 
-		/* Add new JATS XML file */
+		// Add new submission file
 		$newSubmissionFile = Repo::submissionFile()->dao->newDataObject();
 		$newName = [];
 		if (is_array($fileName)) {
 			foreach ($fileName as $localeKey => $name) {
-				$newName[$localeKey] = pathinfo($name)['filename'] . '-jats.xml';
+				$newName[$localeKey] = pathinfo($name)['filename'] . $ext;
 			}
 		} else {
-			$newName[$locale] = pathinfo($fileName)['filename'] . '-jats.xml';
+			$newName[$locale] = pathinfo($fileName)['filename'] . $ext;
 		}
 
 		$submissionDir = Repo::submissionFile()->getSubmissionDir($contextId, $submissionId);
@@ -110,6 +118,57 @@ class TeiToJatsHandler extends Handler
 		$newSubmissionFile = Repo::submissionFile()->add($newSubmissionFile, $request);
 
 		return new JSONMessage(true);
+	}
+
+	/**
+	 * Conversion
+	 * 
+	 * @param string $filePath   Input file path
+	 * @param string $conversion Conversion type
+	 * 
+	 * @return string
+	 */
+	private function conversion($filePath, $conversion): string
+	{
+		$tmpFile = tempnam(sys_get_temp_dir(), 'tei2jats');
+
+		if ('teiToJats' === $conversion) {
+			/* Convert the file TEI-Commons to JATS-Publishing */
+			$command = $this->command($filePath, $tmpFile, 'xslt/'. $conversion . '/TEI-Commons_to_JATS-Publishing.xsl');
+			shell_exec($command);
+
+			return $tmpFile;
+		} else {
+			/* Convert the file JATS-Publishing to TEI-Commons */
+			$command = $this->command($filePath, $tmpFile, 'xslt/'. $conversion . '/JATS-Publishing_to_TEI-Commons_1.xsl');
+			shell_exec($command);
+
+			$tmpFile2 = tempnam(sys_get_temp_dir(), 'tei2jats');
+			$command2 = $this->command($tmpFile, $tmpFile2, 'xslt/'. $conversion . '/JATS-Publishing_to_TEI-Commons_2.xsl');
+			shell_exec($command2);
+
+			unlink($tmpFile);
+
+			return $tmpFile2;
+		}
+	}
+
+	/**
+	 * Get command to convert an input file to an output file using a given .xslt stylesheet
+	 * 
+	 * @param string $input  Input file path
+	 * @param string $output Output file path
+	 * @param string $xslt   .xslt stylesheet path
+	 * 
+	 * @return string
+	 */
+	private function command($input, $output, $xslt): string
+	{
+		//TODO move saxon to config.inc.php
+
+		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();
+
+		return "cd $pluginPath && java -jar $pluginPath/bin/saxon-he-10.6.jar $input $pluginPath/$xslt -o:$output";
 	}
 }
 

@@ -1,6 +1,6 @@
 ## Introduction
 
-This plugin converts XML-TEI Commons Publishing files to XML-JATS Publishing 1.3 using Métopes XSLT style sheets.
+This plugin converts XML-TEI Commons Publishing files to XML-JATS Publishing 1.3 and vice-versa,using Métopes XSLT style sheets.
 Its developement was realised in a CRAFT-OA project context https://www.craft-oa.eu/.
 
 ## Compatibility
