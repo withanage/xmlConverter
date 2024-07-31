@@ -1,4 +1,3 @@
 <?php
 
-require_once('TeiToJatsPlugin.inc.php');
-return new TeiToJatsPlugin();
+return new \APP\plugins\generic\teitojats\TeiToJatsPlugin();

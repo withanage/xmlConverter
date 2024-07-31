@@ -1,0 +1,8 @@
+msgid "plugins.generic.teiToJats.displayName"
+msgstr "TEI to JATS Convertor Plugin"
+
+msgid "plugins.generic.teiToJats.description"
+msgstr "This Plugin converts XML-TEI Commons Publishing files to XML-JATS Publishing"
+
+msgid "plugins.generic.teiToJats.button"
+msgstr "Create JATS file from TEI"
