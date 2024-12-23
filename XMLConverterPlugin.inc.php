@@ -1,6 +1,7 @@
 <?php
 
 import('lib.pkp.classes.plugins.GenericPlugin');
+import('lib.pkp.classes.linkAction.request.AjaxAction');
 
 class xmlConverterPlugin extends GenericPlugin
 {
@@ -75,26 +76,8 @@ class xmlConverterPlugin extends GenericPlugin
 
 				if ($extensionSupported && $accessAllowed && $stageAllowed && 	$workflowAllowed)
 				{
-					$path = $dispatcher->url($request, ROUTE_PAGE, null, 'xmlConverterConverter', 'convert', null,
-						array(
-							'submissionId' => $submissionId,
-							'fileId' => $submissionFile->getData('fileId'),
-							'stageId' => $stageId
-						));
-					$pathRedirect = $dispatcher->url($request, ROUTE_PAGE, null, 'workflow', 'access',
-						array(
-							'submissionId' => $submissionId,
-							'fileId' => $submissionFile->getData('fileId'),
-							'stageId' => $stageId
-						));
-
-					import('lib.pkp.classes.linkAction.request.AjaxAction');
-					$linkAction = new LinkAction(
-						'convertxmlConverter',
-						new PostAndRedirectAction($path, $pathRedirect),
-						__('plugins.generic.xmlConverter.button.convertToTei')
-					);
-					$row->addAction($linkAction);
+					$this->createJatsToTeiButton($dispatcher, $request, $submissionId, $submissionFile, $stageId, $row);
+					$this->creatTEIToJatsButton($dispatcher, $request, $submissionId, $submissionFile, $stageId, $row);
 				}
 
 				}
@@ -122,7 +105,11 @@ class xmlConverterPlugin extends GenericPlugin
 		if($page && $args) {
 			$pageOperator = "$page/$op";
 			switch ($pageOperator) {
-				case "xmlConverterConverter/convert":
+				case "xmlConverterConverter/convertToJats":
+					$this->import('handlers/XMLConverterHandler');
+					define('HANDLER_CLASS', 'xmlConverterHandler');
+					return true;
+				case "xmlConverterConverter/convertToTei":
 					$this->import('handlers/XMLConverterHandler');
 					define('HANDLER_CLASS', 'xmlConverterHandler');
 					return true;
@@ -132,6 +119,65 @@ class xmlConverterPlugin extends GenericPlugin
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param Dispatcher|null $dispatcher
+	 * @param PKPRequest $request
+	 * @param $submissionId
+	 * @param mixed $submissionFile
+	 * @param int $stageId
+	 * @param $row
+	 * @return void
+	 */
+	public function creatTEIToJatsButton(?Dispatcher $dispatcher, PKPRequest $request, $submissionId, mixed $submissionFile, int $stageId, $row): void
+	{
+		$jatsDispatcherPath = $dispatcher->url($request, ROUTE_PAGE, null, 'xmlConverterConverter', 'convertToJats', null,
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+		$pathRedirect = $dispatcher->url($request, ROUTE_PAGE, null, 'workflow', 'access',
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+
+		$linkAction = new LinkAction(
+			'convertteiConverter',
+			new PostAndRedirectAction($jatsDispatcherPath, $pathRedirect),
+			__('plugins.generic.xmlConverter.button.convertToTei')
+		);
+		$row->addAction($linkAction);
+	}
+
+	public function createJatsToTeiButton(?Dispatcher $dispatcher, PKPRequest $request, $submissionId, mixed $submissionFile, int $stageId, $row): void
+	{
+		$teiDispatcherPath = $dispatcher->url($request, ROUTE_PAGE, null, 'xmlConverterConverter', 'convertToTei', null,
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+		$pathRedirect = $dispatcher->url($request, ROUTE_PAGE, null, 'workflow', 'access',
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+
+
+		$linkAction = new LinkAction(
+			'convertJATSConverter',
+			new PostAndRedirectAction($teiDispatcherPath, $pathRedirect),
+			__('plugins.generic.xmlConverter.button.convertToJats')
+		);
+
+		$row->addAction($linkAction);
+
+
 	}
 
 
