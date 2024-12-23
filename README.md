@@ -16,7 +16,7 @@ Currently supported - OJS Versions
 -
 - [X] OJS 3.3.0
 - [X]  OJS 3.4.0
-- []  OJS 3.5.0
+- [ ]  OJS 3.5.0
 
 
 
