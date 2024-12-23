@@ -10,7 +10,7 @@ Both JATS and TEIl formats are widely used in the in publication systems, indexi
 
 The plugin may also be used to  plugging to extract or convert XML in the OAI-Interface
 
-The original implementation was carried out as part of the EU Craft-OA project.
+The original implementation is by [TIB](https://www.tib.eu) as part of the EU-Fundend [Craft-OA](https://www.craft-oa.eu/) project. [Métopes](https://www.metopes.fr/metopes.html) style-sheets were used to support TEI-Conversion.
 
 Currently supported - OJS Versions
 -
