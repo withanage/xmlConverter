@@ -2,7 +2,7 @@
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 
-class TeiToJatsPlugin extends GenericPlugin
+class xmlConverterPlugin extends GenericPlugin
 {
 
 	function register($category, $path, $mainContextId = null)
@@ -28,12 +28,12 @@ class TeiToJatsPlugin extends GenericPlugin
 	}
 	public function getDisplayName()
 	{
-		return __('plugins.generic.tei2Jats.displayName');
+		return __('plugins.generic.xmlConverter.displayName');
 	}
 
 	public function getDescription()
 	{
-		return __('plugins.generic.tei2Jats.description');
+		return __('plugins.generic.xmlConverter.description');
 	}
 
 	public function templateFetchCallback($hookName, $params)
@@ -43,10 +43,13 @@ class TeiToJatsPlugin extends GenericPlugin
 
 		$templateMgr = $params[0];
 		$resourceName = $params[1];
+		$allowedRoles = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN];
+
 		if ($resourceName == 'controllers/grid/gridRow.tpl') {
-			/* @var $row GridRow */
+
 			$row = $templateMgr->getTemplateVars('row');
 			$data = $row->getData();
+
 			if (is_array($data) && (isset($data['submissionFile']))) {
 				$submissionFile = $data['submissionFile'];
 				$fileExtension = strtolower($submissionFile->getData('mimetype'));
@@ -56,20 +59,23 @@ class TeiToJatsPlugin extends GenericPlugin
 				$submissionId = $submissionFile->getData('submissionId');
 				$submission = Services::get('submission')->get($submissionId);
 				$submissionStageId = $submission->getData('stageId');
+
 				$roles = $request->getUser()->getRoles($request->getContext()->getId());
+				$extensionSupported = in_array(strtolower($fileExtension), static::getSupportedMimetypes());
+				$stageAllowed = in_array($stageId, $this->getAllowedWorkflowStages());
+				$workflowAllowed = in_array($submissionStageId, $this->getAllowedWorkflowStages());
 
 				$accessAllowed = false;
 				foreach ($roles as $role) {
-					if (in_array($role->getId(), [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN])) {
+					if (in_array($role->getId(), $allowedRoles)) {
 						$accessAllowed = true;
 						break;
 					}
 				}
-				if (in_array(strtolower($fileExtension), static::getSupportedMimetypes()) && $accessAllowed && in_array($stageId, $this->getAllowedWorkflowStages()) && // only for stage ids copyediting or higher
-					in_array($submissionStageId, $this->getAllowedWorkflowStages())
-				) {
 
-					$path = $dispatcher->url($request, ROUTE_PAGE, null, 'teiToJatsConverter', 'convert', null,
+				if ($extensionSupported && $accessAllowed && $stageAllowed && 	$workflowAllowed)
+				{
+					$path = $dispatcher->url($request, ROUTE_PAGE, null, 'xmlConverterConverter', 'convert', null,
 						array(
 							'submissionId' => $submissionId,
 							'fileId' => $submissionFile->getData('fileId'),
@@ -84,9 +90,9 @@ class TeiToJatsPlugin extends GenericPlugin
 
 					import('lib.pkp.classes.linkAction.request.AjaxAction');
 					$linkAction = new LinkAction(
-						'convertTeiToJats',
+						'convertxmlConverter',
 						new PostAndRedirectAction($path, $pathRedirect),
-						__('plugins.generic.teitojats.button.convertToTei')
+						__('plugins.generic.xmlConverter.button.convertToTei')
 					);
 					$row->addAction($linkAction);
 				}
@@ -100,7 +106,7 @@ class TeiToJatsPlugin extends GenericPlugin
 
 	public static function getSupportedMimetypes()
 	{
-		return ['text/xml', 'application/xml'];
+		return ['text/xml', 'text/html', 'application/xml'];
 	}
 
 	public function getAllowedWorkflowStages()
@@ -116,9 +122,9 @@ class TeiToJatsPlugin extends GenericPlugin
 		if($page && $args) {
 			$pageOperator = "$page/$op";
 			switch ($pageOperator) {
-				case "teiToJatsConverter/convert":
-					$this->import('handlers/TeiToJatsHandler');
-					define('HANDLER_CLASS', 'TeiToJatsHandler');
+				case "xmlConverterConverter/convert":
+					$this->import('handlers/XMLConverterHandler');
+					define('HANDLER_CLASS', 'xmlConverterHandler');
 					return true;
 				default:
 					break;

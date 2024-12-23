@@ -3,7 +3,7 @@
 import('classes.handler.Handler');
 
 
-class TeiToJatsHandler extends Handler
+class xmlConverterHandler extends Handler
 {
 	protected object $plugin;
 
@@ -14,7 +14,7 @@ class TeiToJatsHandler extends Handler
 
 		parent::__construct();
 
-		$this->plugin = PluginRegistry::getPlugin('generic', 'teitojatsplugin');
+		$this->plugin = PluginRegistry::getPlugin('generic', 'xmlconverterplugin');;
 		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN], $this->allowedMethods);
 
 	}
@@ -62,11 +62,11 @@ class TeiToJatsHandler extends Handler
 		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
 		$pluginPath = Core::getBaseDir() . '/' . $this->plugin->getPluginPath();
 		$tmpfname = tempnam(sys_get_temp_dir(), 'tei2jats');
-		$teitojats = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $filePath $pluginPath/xslt/TEI-Commons_2_TEI-Metopes.xsl -o:$tmpfname";
-		shell_exec($teitojats);
+		$xmlConverter = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $filePath $pluginPath/xslt/TEI-Commons_2_TEI-Metopes.xsl -o:$tmpfname";
+		shell_exec($xmlConverter);
 		$tmpfname2 = tempnam(sys_get_temp_dir(), 'tei2jats2');
-		$teitojats2 = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $tmpfname $pluginPath/xslt/TEI-Metopes_2_JATS-Publishing1-3.xsl -o:$tmpfname2";
-		shell_exec($teitojats2);
+		$xmlConverter2 = "cd $pluginPath && java -jar  $pluginPath/bin/saxon-he-10.6.jar $tmpfname $pluginPath/xslt/TEI-Metopes_2_JATS-Publishing1-3.xsl -o:$tmpfname2";
+		shell_exec($xmlConverter2);
 		$genreId = $submissionFile->getData('genreId');
 		// Add new JATS XML file
 		$submissionDir = Services::get('submissionFile')->getSubmissionDir($submission->getData('contextId'), $submissionId);

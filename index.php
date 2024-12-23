@@ -1,4 +1,4 @@
 <?php
 
-require_once('TeiToJatsPlugin.inc.php');
-return new TeiToJatsPlugin();
+require_once('XMLConverterPlugin.inc.php');
+return new xmlConverterPlugin();
