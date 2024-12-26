@@ -19,7 +19,7 @@ Currently supported - OJS Versions
 - [ ]  OJS 3.5.0
 
 # Demo
-[![Watch the video](https://github.com/withanage/xmlConverter/raw/refs/heads/stable-3_3_0/examples/demo.webm)
+[Watch the video](https://github.com/withanage/xmlConverter/raw/refs/heads/stable-3_3_0/examples/demo.webm)
 
 
 # Installation
