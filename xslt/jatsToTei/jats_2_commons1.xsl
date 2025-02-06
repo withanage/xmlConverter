@@ -3,19 +3,8 @@
 <!-- 
 Code source sous licence CECILL-C. Veuillez vous référer au fichier LICENSE.txt pour plus d'informations
 Source code under CECILL-C licence. Please refer to the LICENSE.txt file for more information.
-
-Copyright IR Métopes
-
-Copyright Université de Caen Normandie
-
-Esplanade de la paix
-CS 14032
-14032 Caen CEDEX 5
-
-Contributeurs : IR Métopes (CB, EC), Pôle Document numérique (OVP)
  -->
-
-
+ 
 <xsl:stylesheet
 version="2.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

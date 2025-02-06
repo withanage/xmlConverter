@@ -1,39 +1,52 @@
 <?php
 
-namespace APP\plugins\generic\teitojats;
+namespace APP\plugins\generic\xmlConverter;
 
 use APP\core\Application;
 use APP\facades\Repo;
-use APP\plugins\generic\teitojats\handlers\TeiToJatsHandler;
+use APP\plugins\generic\xmlConverter\handlers\XmlConverterHandler;
 use APP\template\TemplateManager;
+use PKP\core\PKPRequest;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\PostAndRedirectAction;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\security\Role;
 
-class TeiToJatsPlugin extends GenericPlugin
+/**
+ * Class XmlConverterPlugin
+ * 
+ * This plugin provides XML conversion capabilities within the application.
+ * It supports specific file conversions (e.g., TEI to JATS and JATS to TEI)
+ * and integrates into the application's workflow through hooks and custom handlers.
+ */
+class XmlConverterPlugin extends GenericPlugin
 {
 	/**
+	 * Register the plugin and initialize its hooks and resources.
+	 * 
 	 * @copydoc GenericPlugin::register()
 	 * 
-	 * @param string     $category
-	 * @param string	 $path
-     * @param null|mixed $mainContextId
+	 * @param string $category		The category to register the plugin in.
+	 * @param string $path			The path to the plugin.
+     * @param mixed  $mainContextId The context ID, if applicable.
 	 * 
 	 * @return bool
      */
 	public function register($category, $path, $mainContextId = null): bool
 	{
-		$success = parent::register($category, $path);
+		$success = parent::register($category, $path, $mainContextId);
 
 		if ($success && $this->getEnabled()) {
+			// Check if Java is available on the system
 			$javaChecker = exec('command java --version >/dev/null && echo "yes" || echo "no"');
 		
 			if ('yes' == $javaChecker) {
+				// Add hooks for custom handler and template processing
 				Hook::add('LoadHandler', [$this, 'callbackLoadHandler']);
 				Hook::add('TemplateManager::fetch', [$this, 'templateFetchCallback']);
 
+				// Register additional template resources
 				$this->_registerTemplateResource();
 			}
 		}
@@ -42,10 +55,10 @@ class TeiToJatsPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Route any request to a custom handler.
+	 * Load a custom handler for specific page requests.
 	 * 
-	 * @param string $hookName
-	 * @param array  $args
+	 * @param string $hookName Name of the hook being triggered.
+	 * @param array  $args	   Arguments passed to the hook.
 	 * 
 	 * @return bool
 	 */
@@ -54,9 +67,10 @@ class TeiToJatsPlugin extends GenericPlugin
 		$page = $args[0];
 		$operator = $args[1];
 
+		 // Check if the requested page and operator match allowed conversions
 		if (in_array($page, static::getAllowedConversions()) && 'convert' == $operator) {
-			define('HANDLER_CLASS', TeiToJatsHandler::class);
-			
+			define('HANDLER_CLASS', XmlConverterHandler::class);
+
 			return true;
 		}
 
@@ -64,14 +78,14 @@ class TeiToJatsPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Called before a component template is rendered and returned in an ajax request.
+	 * Modify template output before rendering in an AJAX request.
 	 * 
-	 * @param string $hookName
-	 * @param array  $params
+	 * @param string $hookName Name of the hook being triggered.
+	 * @param array  $params   Parameters passed to the hook.
 	 * 
 	 * @return void
 	 */
-	public function templateFetchCallback($hookName, $params): void
+	public function templateFetchCallback(string $hookName, array $params): void
 	{
 		$request = $this->getRequest();
 		$dispatcher = $request->getDispatcher();
@@ -81,7 +95,7 @@ class TeiToJatsPlugin extends GenericPlugin
 		if ('controllers/grid/gridRow.tpl' == $resourceName) {
 			$templateManager = TemplateManager::getManager($request);
 
-			/** @var $row GridRow */
+			/** @var GridRow $row */
 			$row = $templateManager->getTemplateVars('row');
 			$data = $row->getData();
 
@@ -92,6 +106,7 @@ class TeiToJatsPlugin extends GenericPlugin
 				$submission = Repo::submission()->get($submissionId);
 				$submissionStageId = $submission->getData('stageId');
 				
+				// Check user roles for access permissions
 				$roles = $request->getUser()->getRoles($request->getContext()->getId());
 				$accessAllowed = false;
 				foreach ($roles as $role) {
@@ -102,6 +117,7 @@ class TeiToJatsPlugin extends GenericPlugin
 					}
 				}
 
+				// Verify workflow stage and file type compatibility
 				$stageId = (int)$request->getUserVar('stageId');
 				$fileExtension = strtolower($submissionFile->getData('mimetype'));
 				if (
@@ -118,6 +134,7 @@ class TeiToJatsPlugin extends GenericPlugin
 
 					$pathRedirect = $dispatcher->url($request, Application::ROUTE_PAGE, null, 'workflow', 'access', $args);
 
+					// Add conversion actions to the grid row
 					$conversions = static::getAllowedConversions();
 					foreach ($conversions as $conversion) {
 						$row->addAction(
@@ -135,7 +152,7 @@ class TeiToJatsPlugin extends GenericPlugin
 									),
 									$pathRedirect
 								),
-								__("plugins.generic.$conversion.button")
+								__("plugins.generic.xmlConverter.button.$conversion")
 							)
 						);
 					}
@@ -147,51 +164,39 @@ class TeiToJatsPlugin extends GenericPlugin
 	/**
 	 * Get the URL of this plugin.
 	 * 
-	 * @param PKPRequest $request
+	 * @param PKPRequest $request The current request object.
 	 * 
 	 * @return string
 	 */
-	public function getPluginUrl($request): string
+	public function getPluginUrl(PKPRequest $request): string
 	{
 		return $request->getBaseUrl() . '/' . $this->getPluginPath();
 	}
 
 	/**
-	 * Provide the display name of this plugin.
-	 * 
+	 * Get the display name of the plugin.
 	 * The name will appear in the Plugin Gallery where editors can install, enable and disable plugins.
 	 * 
 	 * @return string
 	 */
 	public function getDisplayName(): string
 	{
-		return __('plugins.generic.tei2Jats.displayName');
+		return __('plugins.generic.xmlConverter.displayName');
 	}
 
 	/**
-	 * Provide the description of this plugin.
-	 * 
+	 * Get the description of the plugin.
 	 * The name will appear in the Plugin Gallery where editors can install, enable and disable plugins.
 	 * 
 	 * @return string
 	 */
 	public function getDescription(): string
 	{
-		return __('plugins.generic.tei2Jats.description');
+		return __('plugins.generic.xmlConverter.description');
 	}
 
 	/**
-	 * Provide a list of the supported MIME types.
-	 * 
-	 * @return array
-	 */
-	public static function getSupportedMimetypes(): array
-	{
-		return ['text/xml', 'application/xml'];
-	}
-
-	/**
-	 * Provide a list of the conversions allowed.
+	 * Get the list of allowed conversions.
 	 * 
 	 * @return array
 	 */
@@ -204,16 +209,33 @@ class TeiToJatsPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Provide a list of the allowed workflow stages ids.
+	 * Get the list of supported MIME types for conversion.
 	 * 
 	 * @return array
 	 */
-	public static function getAllowedWorkflowStages(): array
+	public static function getSupportedMimetypes(): array
 	{
-		return [WORKFLOW_STAGE_ID_EDITING, WORKFLOW_STAGE_ID_PRODUCTION];
+		return [
+			'text/xml',
+			'application/xml',
+		];
+	}
+
+	/**
+	 * Get the list of allowed workflow stage IDs.
+	 * 
+	 * @return array
+	 */
+	public function getAllowedWorkflowStages(): array
+	{
+		return [
+			WORKFLOW_STAGE_ID_EDITING,
+			WORKFLOW_STAGE_ID_PRODUCTION,
+		];
 	}
 }
 
 if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\teitojats\TeiToJatsPlugin', '\TeiToJatsPlugin');
+	// Allow legacy aliasing for backward compatibility
+    class_alias('\APP\plugins\generic\xmlConverter\XmlConverterPlugin', '\XmlConverterPlugin');
 }

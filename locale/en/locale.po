@@ -1,14 +1,14 @@
-msgid "plugins.generic.tei2Jats.displayName"
-msgstr "Tei2Jats Convertor Plugin"
+msgid "plugins.generic.xmlConverter.displayName"
+msgstr "XML Converter Plugin"
 
-msgid "plugins.generic.tei2Jats.description"
-msgstr "This Plugin convert TEI to JATS"
+msgid "plugins.generic.xmlConverter.description"
+msgstr "Converts different XML formats. Supported: TEI  and JATS"
 
-msgid "plugins.generic.tei2Jats.setting.description"
-msgstr "Tei2Jats validation settings"
+msgid "plugins.generic.xmlConverter.setting.description"
+msgstr "XML validation settings"
 
-msgid "plugins.generic.teiToJats.button"
-msgstr "TEI to JATS"
-
-msgid "plugins.generic.jatsToTei.button"
+msgid "plugins.generic.xmlConverter.button.jatsToTei"
 msgstr "JATS to TEI"
+
+msgid "plugins.generic.xmlConverter.button.teiToJats"
+msgstr "TEI to JATS"
