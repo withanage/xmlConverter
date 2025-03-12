@@ -39,8 +39,7 @@ class XmlConverterHandler extends Handler
 	 */
 	protected array $styleSheets = [
 		self::CONVERSION_TEI_TO_JATS => [
-			'TEI-Commons_2_TEI-Metopes.xsl',
-			'TEI-Metopes_2_JATS-Publishing1-3.xsl',
+			'TEI-Commons_to_JATS-Publishing.xsl',
 		],
 		self::CONVERSION_JATS_TO_TEI => [
 			'jats_2_commons1.xsl',
@@ -165,39 +164,43 @@ class XmlConverterHandler extends Handler
 	/**
 	 * Executes the XSLT conversion process for the given input file.
 	 * 
-	 * @param string $filePath   Path to the input file.
+	 * @param string $filePath   Path to the input XML file.
 	 * @param string $conversion Type of conversion to perform.
 	 * 
-	 * @return string
+	 * @return string Path to the final transformed XML file.
+	 * 
+	 * @throws \RuntimeException If the transformation process fails.
 	 */
 	private function conversion(string $filePath, string $conversion): string
 	{
 		try {
-			// Execute the first stage of the transformation.
-			$tmpFile1 = tempnam(sys_get_temp_dir(), $conversion);
-			$command1 = $this->command($filePath, $tmpFile1, 'xslt/'. $conversion . '/' . $this->styleSheets[$conversion][0]);
-			exec($command1, $output, $result);
-			if ($result !== 0) {
-				error_log("Command failed: " . implode("\n", $output));
-			}
+			$tmpInput = $filePath;
+			$tmpOutput = null;
 
-			// Execute the second stage of the transformation.
-			$tmpFile2 = tempnam(sys_get_temp_dir(), $conversion);
-			$command2 = $this->command($tmpFile1, $tmpFile2, 'xslt/'. $conversion . '/' . $this->styleSheets[$conversion][1]);
-			exec($command2, $output, $result);
-			if ($result !== 0) {
-				error_log("Command failed: " . implode("\n", $output));
+			// Apply each XSLT stylesheet in sequence
+			foreach ($this->styleSheets[$conversion] as $index => $stylesheet) {
+				$tmpOutput = tempnam(sys_get_temp_dir(), $conversion);
+				$command = $this->command($tmpInput, $tmpOutput, 'xslt/' . $conversion . '/' . $stylesheet);
+				exec($command, $output, $result);
+
+				if ($result !== 0) {
+					error_log("Command failed: " . implode("\n", $output));
+					throw new \RuntimeException("XSLT transformation failed.");
+				}
+
+				// Delete the previous temporary file, except for the initial input
+				if ($index > 0 && file_exists($tmpInput)) {
+					unlink($tmpInput);
+				}
+
+				// The output file becomes the input for the next transformation
+				$tmpInput = $tmpOutput;
 			}
 		} catch (\RuntimeException $e) {
 			throw new \RuntimeException("Conversion failed: " . $e->getMessage());
-		} finally {
-			// Ensure the first temporary file is deleted.
-			if (file_exists($tmpFile1)) {
-				unlink($tmpFile1);
-			}
 		}
 
-		return $tmpFile2;
+		return $tmpOutput;
 	}
 
 	/**
