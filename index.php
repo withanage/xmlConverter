@@ -1,3 +1,3 @@
 <?php
 
-return new \APP\plugins\generic\teitojats\TeiToJatsPlugin();
+return new \APP\plugins\generic\xmlConverter\XmlConverterPlugin();
