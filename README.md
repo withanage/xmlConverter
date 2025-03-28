@@ -16,7 +16,13 @@ The original implementation was created by [TIB](https://www.tib.eu) and develop
 - [X] 3.4.0  (release: *stable-3_4_0*)
 - [ ] 3.5.0
 
+
+
 ## Installation
+
+### Prequisites
+- Installa a Java runtime environment to the server
+``sudo apt-get install default-jre # e.g. for ubuntu
 
 From the root directory of the OJS 3.4.0 release package:
 
