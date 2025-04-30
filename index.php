@@ -1,4 +1,3 @@
 <?php
 
-require_once('XMLConverterPlugin.inc.php');
-return new xmlConverterPlugin();
+return new \APP\plugins\generic\xmlConverter\XmlConverterPlugin();
