@@ -1,0 +1,18 @@
+#
+msgid ""
+msgstr "Language: ar\n"
+
+msgid "plugins.generic.xmlConverter.displayName"
+msgstr "البرنامج المساعد XML Convertor"
+
+msgid "plugins.generic.xmlConverter.description"
+msgstr "يحول تنسيقات XML المختلفة.مدعوم: TEI و JATS"
+
+msgid "plugins.generic.xmlConverter.setting.description"
+msgstr "إعدادات التحقق من صحة XML"
+
+msgid "plugins.generic.xmlConverter.button.convertToTei"
+msgstr "إنشاء Jats-XML"
+
+msgid "plugins.generic.xmlConverter.button.convertToJats"
+msgstr "إنشاء TEI-XML"

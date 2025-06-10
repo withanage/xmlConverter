@@ -1,14 +1,18 @@
+#
+msgid ""
+msgstr "Language: de_DE\n"
+
 msgid "plugins.generic.xmlConverter.displayName"
-msgstr "XML Convertor Plugin"
+msgstr "XML -Konvertoren -Plugin"
 
 msgid "plugins.generic.xmlConverter.description"
-msgstr "Converts different XML formats. Supported: TEI  and JATS"
+msgstr "Konvertiert verschiedene XML -Formate.Unterstützt: Tei und Jats"
 
 msgid "plugins.generic.xmlConverter.setting.description"
-msgstr "XML  validation settings"
+msgstr "XML -Validierungseinstellungen"
 
 msgid "plugins.generic.xmlConverter.button.convertToTei"
-msgstr "Create JATS-XML"
+msgstr "Erstellen Sie Jats-XML"
 
 msgid "plugins.generic.xmlConverter.button.convertToJats"
-msgstr "Create TEI-XML"
+msgstr "Tei-xml erstellen"
