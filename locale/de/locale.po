@@ -22,6 +22,4 @@ msgid "plugins.generic.xmlConverter.mimetypeError.title"
 msgstr "Dateitypfehler"
 
 msgid "plugins.generic.xmlConverter.mimetypeError.message"
-msgstr ""
-"Falscher Dateityp.Es werden nur 'Text/XML' und 'Application/XML' "
-"unterstützt."
+msgstr "Falscher Dateityp.Es werden nur 'Text/XML' und 'Application/XML' unterstützt."
