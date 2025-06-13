@@ -1,0 +1,25 @@
+#
+msgid ""
+msgstr "Language: it\n"
+
+msgid "plugins.generic.xmlConverter.displayName"
+msgstr "Plug -in convertitore XML"
+
+msgid "plugins.generic.xmlConverter.description"
+msgstr "Converte diverse formati XML.Attualmente supportato: Tei e Jats"
+
+msgid "plugins.generic.xmlConverter.setting.description"
+msgstr "Impostazioni di convalida XML"
+
+msgid "plugins.generic.xmlConverter.button.jatsToTei"
+msgstr "Jats a Tei"
+
+msgid "plugins.generic.xmlConverter.button.teiToJats"
+msgstr "Tei a Jats"
+
+msgid "plugins.generic.xmlConverter.mimetypeError.title"
+msgstr "Errore del tipo di file"
+
+msgid "plugins.generic.xmlConverter.mimetypeError.message"
+msgstr ""
+"Tipo di file errato.Sono supportati solo 'Testo/XML' e 'Applicazione/XML'."
