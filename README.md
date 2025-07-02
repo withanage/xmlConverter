@@ -32,6 +32,18 @@ The plugin named **XML Converter Plugin** should be enabled by default. However,
 
 *Settings > Website > Plugins*
 
+### Structure 
+```
+./bin      Binary files saxon-he
+./examples examlpe files 
+./handlers handlers
+./locale  Translations
+./resources 
+./xslt/jatsToTei   jats to tei stylesheets
+./xslt/teiToJats tei to jats stylesheets
+
+```
+
 ## Contributors
 
 - Jeanette Hatherill, Coalition Publica
