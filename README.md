@@ -23,9 +23,7 @@ From the root directory of the OJS 3.5.0 release package:
 ```bash
 $ git clone -b stable-3_5_0 https://github.com/withanage/xmlConverter.git plugins/generic/xmlConverter
 $ php lib/pkp/tools/installPluginVersion.php plugins/generic/xmlConverter/version.xml
-$ npm install
-$ npm run dev  (developments)
-$ npm run build (productions)
+
 ```
 
 ## Activation
@@ -33,6 +31,18 @@ $ npm run build (productions)
 The plugin named **XML Converter Plugin** should be enabled by default. However, if needed, you can activate it manually in your Dashboard:
 
 *Settings > Website > Plugins*
+
+### Structure 
+```
+./bin      Binary files saxon-he
+./examples examlpe files 
+./handlers handlers
+./locale  Translations
+./resources 
+./xslt/jatsToTei   jats to tei stylesheets
+./xslt/teiToJats tei to jats stylesheets
+
+```
 
 ## Contributors
 

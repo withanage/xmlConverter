@@ -1,0 +1,24 @@
+#
+msgid ""
+msgstr "Language: si\n"
+
+msgid "plugins.generic.xmlConverter.displayName"
+msgstr "XML පරිවර්තක ප්ලගිනය"
+
+msgid "plugins.generic.xmlConverter.description"
+msgstr "විවිධ XML ආකෘති පරිවර්තනය කරයි.දැනට සහාය දක්වන: තේ සහ ජැට්ස්"
+
+msgid "plugins.generic.xmlConverter.setting.description"
+msgstr "XML වලංගු කිරීමේ සැකසුම්"
+
+msgid "plugins.generic.xmlConverter.button.jatsToTei"
+msgstr "හී සිට තේ දක්වා"
+
+msgid "plugins.generic.xmlConverter.button.teiToJats"
+msgstr "Tee සිට ජැට්ස්"
+
+msgid "plugins.generic.xmlConverter.mimetypeError.title"
+msgstr "ගොනු වර්ගය දෝෂයකි"
+
+msgid "plugins.generic.xmlConverter.mimetypeError.message"
+msgstr "වැරදි ගොනු වර්ගය.'පෙළ / xml' සහ 'අයදුම්පත් / xml' සඳහා සහය දක්වයි."
