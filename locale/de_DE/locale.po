@@ -18,3 +18,6 @@ msgstr "Tei-xml erstellen"
 msgid "plugins.generic.xmlConverter.button.convertToTei"
 msgstr "Jats-XML erstellen"
 
+msgid "plugins.generic.xmlConverter.button.processJatsImages"
+msgstr "JATS-Bilder herunterladen"
+

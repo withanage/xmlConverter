@@ -7,7 +7,7 @@ class xmlConverterHandler extends Handler
 {
 	protected object $plugin;
 
-	protected array $allowedMethods = ['convertToJats','convertToTei'];
+	protected array $allowedMethods = ['convertToJats', 'convertToTei', 'processJatsImages'];
 
 	function __construct()
 	{
@@ -172,5 +172,247 @@ class xmlConverterHandler extends Handler
 		$json = new JSONMessage(true);
 		return $json;
 	}
-}
 
+	public function processJatsImages($args, $request): JSONMessage
+	{
+		$fileId = (int)$request->getUserVar('fileId');
+		$submissionFiles = Services::get('submissionFile')->getMany([
+			'fileIds' => [$fileId],
+		]);
+		$submissionFile = $submissionFiles->current();
+		$submissionId = $submissionFile->getData('submissionId');
+		$submission = Services::get('submission')->get($submissionId);
+
+		import('lib.pkp.classes.file.PrivateFileManager');
+		$fileManager = new PrivateFileManager();
+		$filePath = $fileManager->getBasePath() . '/' . $submissionFile->getData('path');
+
+		// Load and parse the JATS XML file
+		$xmlContent = file_get_contents($filePath);
+		$xml = new DOMDocument();
+		$xml->loadXML($xmlContent);
+
+		// Find all graphic elements (JATS uses <graphic> tags for images)
+		$xpath = new DOMXPath($xml);
+		$xpath->registerNamespace('xlink', 'http://www.w3.org/1999/xlink');
+
+		// Search for graphic elements with xlink:href attributes
+		$graphicNodes = $xpath->query('//graphic[@xlink:href] | //inline-graphic[@xlink:href]');
+
+		$downloadedCount = 0;
+		$failedDownloads = [];
+
+		// Get the genre ID for figures/images
+		$genreDao = DAORegistry::getDAO('GenreDAO');
+		$genres = $genreDao->getByContextId($submission->getData('contextId'));
+		$imageGenreId = null;
+
+		// Try to find an appropriate genre for images/artwork
+		while ($genre = $genres->next()) {
+			// Check for common genre keys/names for images
+			$genreKey = $genre->getKey();
+			$genreName = $genre->getName(null); // Get name in any locale
+
+			// Look for genres commonly used for images
+			if (stripos($genreKey, 'image') !== false ||
+				stripos($genreKey, 'figure') !== false ||
+				stripos($genreKey, 'artwork') !== false ||
+				(is_string($genreName) && (
+						stripos($genreName, 'image') !== false ||
+						stripos($genreName, 'figure') !== false
+					))) {
+				$imageGenreId = $genre->getId();
+				break;
+			}
+		}
+
+		// If no artwork genre found, use the same genre as the XML file
+		if (!$imageGenreId) {
+			$imageGenreId = $submissionFile->getData('genreId');
+		}
+
+		$submissionDir = Services::get('submissionFile')->getSubmissionDir(
+			$submission->getData('contextId'),
+			$submissionId
+		);
+
+		// Get the parent file's ID for dependent file association
+		$parentSubmissionFileId = $submissionFile->getId();
+
+		foreach ($graphicNodes as $graphicNode) {
+			$imageUrl = $graphicNode->getAttribute('xlink:href');
+
+			// Skip if URL is empty
+			if (empty($imageUrl)) {
+				continue;
+			}
+
+			// Handle relative URLs - convert to absolute if needed
+			if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+				$failedDownloads[] = [
+					'url' => $imageUrl,
+					'reason' => 'Relative URL or invalid format'
+				];
+				continue;
+			}
+
+			try {
+				// Download the image to a temporary file
+				$imageContent = $this->downloadImage($imageUrl);
+
+				if ($imageContent === false) {
+					$failedDownloads[] = [
+						'url' => $imageUrl,
+						'reason' => 'Failed to download'
+					];
+					continue;
+				}
+
+				// Create temporary file
+				$tmpFile = tempnam(sys_get_temp_dir(), 'jatsimg_');
+				file_put_contents($tmpFile, $imageContent);
+
+				// Determine file extension from URL or content type
+				$extension = $this->getImageExtension($imageUrl, $imageContent);
+				$filename = pathinfo(parse_url($imageUrl, PHP_URL_PATH), PATHINFO_FILENAME);
+				$filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename); // Sanitize filename
+
+				if (empty($filename)) {
+					$filename = 'image_' . uniqid();
+				}
+
+				// Add file to OJS
+				$newFileId = Services::get('file')->add(
+					$tmpFile,
+					$submissionDir . DIRECTORY_SEPARATOR . $filename . '.' . $extension
+				);
+
+				// Create submission file entry as a DEPENDENT file
+				$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
+				$newSubmissionFile = $submissionFileDao->newDataObject();
+
+				$mimeType = $this->getMimeTypeFromExtension($extension);#
+				$currentUser = $request->getUser();
+				$uploaderId = $currentUser->getId();
+
+
+				// Set as dependent file by using ASSOC_TYPE_SUBMISSION_FILE
+				// and setting assocId to the parent XML file's ID
+				$newSubmissionFile->setAllData([
+					'fileId' => $newFileId,
+					'assocType' => ASSOC_TYPE_SUBMISSION_FILE, // This makes it a dependent file
+					'assocId' => $parentSubmissionFileId,
+					'fileStage' => SUBMISSION_FILE_DEPENDENT, // Use dependent file stage
+					'mimetype' => $mimeType,
+					'locale' => $submissionFile->getData('locale'),
+					'genreId' => $imageGenreId,
+					'name' => [$submissionFile->getData('locale') => $filename . '.' . $extension],
+					'submissionId' => $submissionId,
+					'uploaderUserId' => $uploaderId,
+				]);
+
+				$newSubmissionFile = Services::get('submissionFile')->add($newSubmissionFile, $request);
+
+				// Clean up temporary file
+				unlink($tmpFile);
+
+				$downloadedCount++;
+
+			} catch (Exception $e) {
+				$failedDownloads[] = [
+					'url' => $imageUrl,
+					'reason' => $e->getMessage()
+				];
+			}
+		}
+
+		// Prepare response message
+		$message = sprintf(
+			'Successfully downloaded and attached %d image(s) as dependent files.',
+			$downloadedCount
+		);
+
+		if (!empty($failedDownloads)) {
+			$message .= sprintf(' Failed to download %d image(s).', count($failedDownloads));
+		}
+
+		$json = new JSONMessage(true, $message);
+		return $json;
+	}
+
+	/**
+	 * Download image from URL using cURL with proper headers
+	 */
+	private function downloadImage($url)
+	{
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($ch, CURLOPT_USERAGENT, 'OJS-XMLConverter-Plugin/1.0');
+
+		$result = curl_exec($ch);
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		if ($httpCode >= 200 && $httpCode < 300) {
+			return $result;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get image extension from URL or content
+	 */
+	private function getImageExtension($url, $content)
+	{
+		// Try to get extension from URL
+		$path = parse_url($url, PHP_URL_PATH);
+		$extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+		// Validate extension
+		$validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'bmp', 'svg', 'webp'];
+		if (in_array($extension, $validExtensions)) {
+			return $extension;
+		}
+
+		// Try to detect from content
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		$mimeType = $finfo->buffer($content);
+
+		$mimeToExt = [
+			'image/jpeg' => 'jpg',
+			'image/png' => 'png',
+			'image/gif' => 'gif',
+			'image/tiff' => 'tif',
+			'image/bmp' => 'bmp',
+			'image/svg+xml' => 'svg',
+			'image/webp' => 'webp',
+		];
+
+		return $mimeToExt[$mimeType] ?? 'jpg'; // Default to jpg
+	}
+
+	/**
+	 * Get MIME type from extension
+	 */
+	private function getMimeTypeFromExtension($extension)
+	{
+		$extToMime = [
+			'jpg' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'png' => 'image/png',
+			'gif' => 'image/gif',
+			'tif' => 'image/tiff',
+			'tiff' => 'image/tiff',
+			'bmp' => 'image/bmp',
+			'svg' => 'image/svg+xml',
+			'webp' => 'image/webp',
+		];
+
+		return $extToMime[$extension] ?? 'application/octet-stream';
+	}
+}

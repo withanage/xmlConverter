@@ -78,6 +78,7 @@ class xmlConverterPlugin extends GenericPlugin
 				{
 					$this->createJatsToTeiButton($dispatcher, $request, $submissionId, $submissionFile, $stageId, $row);
 					$this->creatTEIToJatsButton($dispatcher, $request, $submissionId, $submissionFile, $stageId, $row);
+					$this->createProcessJatsImagesButton($dispatcher, $request, $submissionId, $submissionFile, $stageId, $row);
 				}
 
 				}
@@ -106,10 +107,8 @@ class xmlConverterPlugin extends GenericPlugin
 			$pageOperator = "$page/$op";
 			switch ($pageOperator) {
 				case "xmlConverterConverter/convertToJats":
-					$this->import('handlers/XMLConverterHandler');
-					define('HANDLER_CLASS', 'xmlConverterHandler');
-					return true;
 				case "xmlConverterConverter/convertToTei":
+				case "xmlConverterConverter/processJatsImages":
 					$this->import('handlers/XMLConverterHandler');
 					define('HANDLER_CLASS', 'xmlConverterHandler');
 					return true;
@@ -180,5 +179,27 @@ class xmlConverterPlugin extends GenericPlugin
 
 	}
 
+	public function createProcessJatsImagesButton(?Dispatcher $dispatcher, PKPRequest $request, $submissionId, mixed $submissionFile, int $stageId, $row): void
+	{
+		$processImagesPath = $dispatcher->url($request, ROUTE_PAGE, null, 'xmlConverterConverter', 'processJatsImages', null,
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+		$pathRedirect = $dispatcher->url($request, ROUTE_PAGE, null, 'workflow', 'access',
+			array(
+				'submissionId' => $submissionId,
+				'fileId' => $submissionFile->getData('fileId'),
+				'stageId' => $stageId
+			));
+
+		$linkAction = new LinkAction(
+			'processJatsImages',
+			new PostAndRedirectAction($processImagesPath, $pathRedirect),
+			__('plugins.generic.xmlConverter.button.processJatsImages')
+		);
+		$row->addAction($linkAction);
+	}
 
 }
