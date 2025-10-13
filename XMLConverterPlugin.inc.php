@@ -148,7 +148,7 @@ class xmlConverterPlugin extends GenericPlugin
 		$linkAction = new LinkAction(
 			'convertteiConverter',
 			new PostAndRedirectAction($jatsDispatcherPath, $pathRedirect),
-			__('plugins.generic.xmlConverter.button.convertToTei')
+			__('plugins.generic.xmlConverter.button.convertToJats')
 		);
 		$row->addAction($linkAction);
 	}
@@ -172,7 +172,7 @@ class xmlConverterPlugin extends GenericPlugin
 		$linkAction = new LinkAction(
 			'convertJATSConverter',
 			new PostAndRedirectAction($teiDispatcherPath, $pathRedirect),
-			__('plugins.generic.xmlConverter.button.convertToJats')
+			__('plugins.generic.xmlConverter.button.convertToTei')
 		);
 
 		$row->addAction($linkAction);
