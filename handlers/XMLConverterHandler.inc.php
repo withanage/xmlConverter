@@ -7,7 +7,13 @@ class xmlConverterHandler extends Handler
 {
 	protected object $plugin;
 
-	protected array $allowedMethods = ['convertToJats', 'convertToTei', 'processJatsImages'];
+	/** @var Submission */
+	public $submission;
+
+	/** @var Publication */
+	public $publication;
+
+	protected array $allowedMethods = ['convertToJats', 'convertToTei', 'processJatsImages', 'createGalleyForm', 'createGalley', 'createServiceFileForm'];
 
 	function __construct()
 	{
@@ -15,8 +21,19 @@ class xmlConverterHandler extends Handler
 		parent::__construct();
 
 		$this->plugin = PluginRegistry::getPlugin('generic', 'xmlconverterplugin');;
-		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN], $this->allowedMethods);
+		$this->addRoleAssignment([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_SITE_ADMIN, ROLE_ID_AUTHOR], $this->allowedMethods);
 
+	}
+
+	/**
+	 * @copydoc PKPHandler::initialize()
+	 */
+	function initialize($request)
+	{
+		parent::initialize($request);
+		$this->submission = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION);
+		$this->publication = $this->submission->getLatestPublication();
+		$this->setupTemplate($request);
 	}
 
 	function authorize($request, &$args, $roleAssignments): bool
@@ -25,6 +42,80 @@ class xmlConverterHandler extends Handler
 		$this->addPolicy(new WorkflowStageAccessPolicy($request, $args, $roleAssignments,
 			'submissionId', (int)$request->getUserVar('stageId')));
 		return parent::authorize($request, $args, $roleAssignments);
+	}
+
+	/**
+	 * Get the plugin.
+	 * @return xmlConverterPlugin
+	 */
+	function getPlugin()
+	{
+		return $this->plugin;
+	}
+
+	/**
+	 * Create galley form
+	 * @param $args array
+	 * @param $request PKPRequest
+	 * @return JSONMessage JSON object
+	 */
+	public function createGalleyForm($args, $request)
+	{
+		import('plugins.generic.xmlConverter.controllers.grid.form.TextureArticleGalleyForm');
+		$galleyForm = new TextureArticleGalleyForm($request, $this->getPlugin(), $this->publication, $this->submission);
+
+		$galleyForm->initData();
+		return new JSONMessage(true, $galleyForm->fetch($request));
+	}
+
+	/**
+	 * @param $args
+	 * @param $request PKPRequest
+	 * @return JSONMessage
+	 */
+	public function createGalley($args, $request)
+	{
+		import('plugins.generic.xmlConverter.controllers.grid.form.TextureArticleGalleyForm');
+		$galleyForm = new TextureArticleGalleyForm($request, $this->getPlugin(), $this->publication, $this->submission);
+		$galleyForm->readInputData();
+
+		if ($galleyForm->validate()) {
+			$galleyForm->execute();
+			return $request->redirectUrlJson($request->getDispatcher()->url(
+				$request,
+				ROUTE_PAGE,
+				null,
+				'workflow',
+				'access',
+				null,
+				array(
+					'submissionId' => $request->getUserVar('submissionId'),
+					'stageId' => $request->getUserVar('stageId')
+				)
+			));
+		}
+
+		return new JSONMessage(false);
+	}
+
+	/**
+	 * @param $args
+	 * @param $request
+	 * @return JSONMessage
+	 */
+	public function createServiceFileForm($args, $request)
+	{
+		import('plugins.generic.xmlConverter.controllers.grid.form.CreateServiceFileForm');
+		$serviceFileForm = new CreateServiceFileForm($request, $this->getPlugin(), $this->publication, $this->submission);
+
+		if ($serviceFileForm->validate()) {
+			$serviceFileForm->readInputData();
+			$serviceFileForm->execute();
+
+		} else {
+			$serviceFileForm->initData();
+			return new JSONMessage(true, $serviceFileForm->fetch($request));
+		}
 	}
 
 	public function extractExecute($args, $request): JSONMessage

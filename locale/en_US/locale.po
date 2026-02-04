@@ -30,3 +30,72 @@ msgstr "Create TEI XML"
 
 msgid "plugins.generic.xmlConverter.button.processJatsImages"
 msgstr "Download JATS Images"
+
+msgid "plugins.generic.xmlConverter.links.createGalley"
+msgstr "Create Galley"
+
+msgid "plugins.generic.xmlConverter.createGalley.customModifications"
+msgstr "Custom modifications"
+
+msgid "plugins.generic.xmlConverter.createGalley.fpage"
+msgstr "First page"
+
+msgid "plugins.generic.xmlConverter.createGalley.lpage"
+msgstr "Last page"
+
+msgid "plugins.generic.xmlConverter.createGalley.datePublished"
+msgstr "Published date"
+
+msgid "plugins.generic.xmlConverter.createGalley.journalMeta"
+msgstr "Add Journal metadata"
+
+msgid "plugins.generic.xmlConverter.createGalley.createArticlelMetaLicense"
+msgstr "Update Journal license"
+
+msgid "plugins.generic.xmlConverter.createGalley.createArticlelMetaHistory"
+msgstr "Update Article publication history"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.upload"
+msgstr "Upload A file from a service"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.file.name"
+msgstr "File name or file URL"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.file.description"
+msgstr "Choose the path of the file or URL to upload"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.orkg"
+msgstr "Open Research Knowledge Graph"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.oai"
+msgstr "OJS OAI-PMH Interface"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.add_file"
+msgstr "Add external File"
+
+msgid "plugins.generic.xmlConverter.settings.features"
+msgstr "Feature Settings"
+
+msgid "plugins.generic.xmlConverter.settings.galleyFeatures"
+msgstr "Galley Features"
+
+msgid "plugins.generic.xmlConverter.settings.conversionFeatures"
+msgstr "XML Conversion Features"
+
+msgid "plugins.generic.xmlConverter.settings.enableCreateGalley"
+msgstr "Enable Create Galley from XML"
+
+msgid "plugins.generic.xmlConverter.settings.enableAddExternalFile"
+msgstr "Enable Add External File (ORKG)"
+
+msgid "plugins.generic.xmlConverter.settings.enableJatsConversion"
+msgstr "Enable TEI to JATS conversion"
+
+msgid "plugins.generic.xmlConverter.settings.enableTeiConversion"
+msgstr "Enable JATS to TEI conversion"
+
+msgid "plugins.generic.xmlConverter.settings.enableImageProcessing"
+msgstr "Enable JATS image processing"
+
+msgid "plugins.generic.xmlConverter.settings.javaNotAvailable"
+msgstr "Java is not available on this server. TEI/JATS conversion features are disabled."
