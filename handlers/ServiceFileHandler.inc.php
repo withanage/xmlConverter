@@ -369,7 +369,7 @@ abstract class ServiceFileHandler
 
     private function writeContentToFile(string $content, string $savePath): void
     {
-        $bytesWritten = file_put_contents($content, $savePath, LOCK_EX);
+        $bytesWritten = file_put_contents($savePath, $content, LOCK_EX);
 
         if ($bytesWritten === false) {
             throw new RuntimeException("Failed to write file to {$savePath}");
