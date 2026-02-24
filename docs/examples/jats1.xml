@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink">
+    <front>
+        <title-group>
+            <article-title>Example Article Title</article-title>
+            <sub-title>A Subtitle for the Article</sub-title>
+        </title-group>
+        <contrib-group>
+            <author>
+                <name>
+                    <surname>Doe</surname>
+                    <given-names>John</given-names>
+                </name>
+            </author>
+        </contrib-group>
+        <pub-date>
+            <year>2023</year>
+            <month>10</month>
+            <day>19</day>
+        </pub-date>
+    </front>
+    <body>
+        <p>This is an example paragraph in the article body.</p>
+    </body>
+</article>

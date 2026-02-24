@@ -1,13 +1,21 @@
-#
 msgid ""
-msgstr "Language: de\n"
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-07-01T00:00:00+00:00\n"
+"PO-Revision-Date: 2025-07-01T00:00:00+00:00\n"
+"Language: \n"
 
 msgid "plugins.generic.xmlConverter.displayName"
-msgstr "XML Converter -Plugin"
+msgstr "XML Converter-Plugin"
 
 msgid "plugins.generic.xmlConverter.description"
-msgstr ""
-"Konvertiert verschiedene XML -Formate.Derzeit unterstützt: Tei und Jats"
+msgstr "Konvertiert verschiedene XML -Formate.Derzeit unterstützt: Tei und Jats"
 
 msgid "plugins.generic.xmlConverter.setting.description"
 msgstr "XML -Validierungseinstellungen"
@@ -15,11 +23,56 @@ msgstr "XML -Validierungseinstellungen"
 msgid "plugins.generic.xmlConverter.button.jatsToTei"
 msgstr "Jats zu Tei"
 
+msgid "plugins.generic.xmlConverter.button.jatsToTei.dialog"
+msgstr "Möchten Sie diese Datei wirklich in das TEI-Format konvertieren?"
+
 msgid "plugins.generic.xmlConverter.button.teiToJats"
 msgstr "Tei zu Jats"
+
+msgid "plugins.generic.xmlConverter.button.teiToJats.dialog"
+msgstr "Möchten Sie diese Datei wirklich in das Jats-Format konvertieren?"
 
 msgid "plugins.generic.xmlConverter.mimetypeError.title"
 msgstr "Dateitypfehler"
 
 msgid "plugins.generic.xmlConverter.mimetypeError.message"
 msgstr "Falscher Dateityp.Es werden nur 'Text/XML' und 'Application/XML' unterstützt."
+
+msgid "plugins.generic.xmlConverter.createGalley.createArticleMetaHistory"
+msgstr "Veröffentlichungshistorie des Artikels aktualisieren"
+
+msgid "plugins.generic.xmlConverter.createGalley.createArticleMetaLicense"
+msgstr "Zeitschriftenlizenz aktualisieren"
+
+msgid "plugins.generic.xmlConverter.createGalley.customModifications"
+msgstr "Benutzerdefinierte Änderungen"
+
+msgid "plugins.generic.xmlConverter.createGalley.datePublished"
+msgstr "Veröffentlichungsdatum"
+
+msgid "plugins.generic.xmlConverter.createGalley.firstPage"
+msgstr "Erste Seite"
+
+msgid "plugins.generic.xmlConverter.createGalley.createJournalMeta"
+msgstr "Zeitschriften-Metadaten hinzufügen"
+
+msgid "plugins.generic.xmlConverter.createGalley.lastPage"
+msgstr "Letzte Seite"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.addFile"
+msgstr "Externe Datei hinzufügen"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.file.description"
+msgstr "Wählen Sie den Pfad der Datei oder die URL zum Hochladen"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.file.name"
+msgstr "Dateiname oder Datei-URL"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.orkg"
+msgstr "Open Research Knowledge Graph"
+
+msgid "plugins.generic.xmlConverter.createServiceFile.upload"
+msgstr "Eine Datei aus einem Dienst hochladen"
+
+msgid "plugins.generic.xmlConverter.links.createGalley"
+msgstr "Galerie erstellen"

@@ -1,5 +1,5 @@
 /**
- * @file plugins/generic/xmlConverter/vite.config.conversions.js
+ * @file plugins/generic/xmlConverter/vite.config.default.js
  *
  * Copyright (c) 2014-2025 Simon Fraser University
  * Copyright (c) 2003-2025 John Willinsky
@@ -20,9 +20,9 @@ export default defineConfig({
 	plugins: [i18nExtractKeys(), vue()],
 	build: {
 		lib: {
-			entry: resolve(__dirname, 'resources/js/main-conversions.js'),
-			name: 'XmlConverterConversions',
-			fileName: 'build-conversions',
+			entry: resolve(__dirname, 'resources/js/main-default.js'),
+			name: 'XmlConverterDefault',
+			fileName: 'build-default',
 			formats: ['iife'],
 		},
 		outDir: resolve(__dirname, 'public/build'),
