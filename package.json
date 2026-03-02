@@ -1,11 +1,14 @@
 {
-	"name": "xmlConverter",
+	"name": "xmlconverter",
 	"version": "1.0.0",
-	"description": "Backend UI Example using vue.js for Open Journal Systems",
+	"description": "This plugin converts various XML formats and supports interoperability between publication systems",
 	"main": "index.js",
 	"scripts": {
-		"dev": "vite build --watch --minify=false",
-		"build": "vite build",
+		"build": "npm run build:default && npm run build:conversions",
+		"build:default": "vite build --emptyOutDir false --config vite.config.default.js",
+		"build:conversions": "vite build --emptyOutDir false --config vite.config.conversions.js",
+		"dev:default": "vite build --watch --mode development --emptyOutDir false --config vite.config.default.js",
+		"dev:conversions": "vite build --watch --mode development --emptyOutDir false --config vite.config.conversions.js",
 		"lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
 	},
 	"author": "",

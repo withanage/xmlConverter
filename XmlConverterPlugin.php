@@ -1,98 +1,113 @@
 <?php
 
-namespace APP\plugins\generic\xmlConverter;
-
-use APP\API\v1\submissions\SubmissionController;
-use APP\core\Application;
-use APP\plugins\generic\xmlConverter\api\v1\submissions\XmlConvertController;
-use APP\plugins\generic\xmlConverter\handlers\XmlConverterHandler;
-use APP\template\TemplateManager;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use PKP\core\PKPBaseController;
-use PKP\handler\APIHandler;
-use PKP\plugins\GenericPlugin;
-use PKP\plugins\Hook;
-use PKP\security\Role;
-
 /**
- * Class XmlConverterPlugin
+ * @file plugins/generic/xmlConverter/XmlConverterPlugin.php
  *
- * This plugin provides XML conversion capabilities within the application.
- * It supports specific file conversions (e.g., TEI to JATS and JATS to TEI)
+ * Copyright (c) 2014-2025 Simon Fraser University
+ * Copyright (c) 2003-2026 John Willinsky
+ * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+ *
+ * @class XmlConverterPlugin
+ *
+ * @ingroup plugins_generic_xmlconverter
+ *
+ * @brief This plugin provides XML conversion capabilities within the application.
+ * It supports specific file conversions (e.g., TEI to Jats and Jats to TEI)
  * and integrates into the application's workflow through hooks and custom handlers.
  */
+
+namespace APP\plugins\generic\xmlConverter;
+
+use APP\core\Application;
+use APP\core\Request;
+use APP\plugins\generic\xmlConverter\classes\PluginApiHandler;
+use APP\template\TemplateManager;
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
+
 class XmlConverterPlugin extends GenericPlugin
 {
-	/**
-	 * Register the plugin and initialize its hooks and resources.
-	 *
-	 * @copydoc GenericPlugin::register()
-	 *
-	 * @param string $category		The category to register the plugin in.
-	 * @param string $path			The path to the plugin.
-     * @param mixed  $mainContextId The context ID, if applicable.
-	 *
-	 * @return bool
+    public const PLUGIN_URL = 'xmlConverter';
+
+    public const DAR_MANIFEST_FILE = 'manifest.xml';
+    public const DAR_MANUSCRIPT_FILE = 'manuscript.xml';
+
+    public const FILE_TYPE_DAR = 'dar';
+    public const FILE_TYPE_ZIP = 'zip';
+    public const FILE_TYPE_HTML = 'html';
+
+    /**
+     * @copydoc GenericPlugin::register()
      */
-	public function register($category, $path, $mainContextId = null): bool
-	{
-		$success = parent::register($category, $path, $mainContextId);
-
-		if ($success && $this->getEnabled()) {
-			// Check if Java is available on the system
-			$javaChecker = exec('command java --version >/dev/null && echo "yes" || echo "no"');
-
-			if ('yes' == $javaChecker) {
+    public function register($category, $path, $mainContextId = null): bool
+    {
+        if (parent::register($category, $path, $mainContextId)) {
+            if ($this->getEnabled()) {
                 $request = Application::get()->getRequest();
                 $templateMgr = TemplateManager::getManager($request);
-                $this->addJavaScript($request, $templateMgr);
-                $this->addRoute(); // add an API route to xmlConverter
-			}
-		}
+                $apiController = new PluginApiHandler($this);
 
-		return $success;
-	}
+                Hook::add('APIHandler::endpoints::submissions', $apiController->addRouteDefault(...));
+                $this->addResourcesDefault($request, $templateMgr);
 
-	/**
-	 * Get the display name of the plugin.
-	 * The name will appear in the Plugin Gallery where editors can install, enable and disable plugins.
-	 *
-	 * @return string
-	 */
-	public function getDisplayName(): string
-	{
-		return __('plugins.generic.xmlConverter.displayName');
-	}
+                // Execute only if Java is installed
+                if ('yes' === exec('command java --version >/dev/null && echo "yes" || echo "no"')) {
+                    Hook::add('APIHandler::endpoints::submissions', $apiController->addRouteConversions(...));
+                    $this->addResourcesConversions($request, $templateMgr);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Get the description of the plugin.
-	 * The name will appear in the Plugin Gallery where editors can install, enable and disable plugins.
-	 *
-	 * @return string
-	 */
-	public function getDescription(): string
-	{
-		return __('plugins.generic.xmlConverter.description');
-	}
+    /**
+     * @copydoc Plugin::getDisplayName
+     */
+    public function getDisplayName(): string
+    {
+        return __('plugins.generic.xmlConverter.displayName');
+    }
 
-	/**
-	 * Get the list of allowed workflow stage IDs.
-	 *
-	 * @return array
-	 */
-	public function getAllowedWorkflowStages(): array
-	{
-		return [
-			WORKFLOW_STAGE_ID_EDITING,
-			WORKFLOW_STAGE_ID_PRODUCTION,
-		];
-	}
-    public function addJavaScript($request, $templateMgr)
+    /**
+     * @copydoc Plugin::getDescription
+     */
+    public function getDescription(): string
+    {
+        return __('plugins.generic.xmlConverter.description');
+    }
+
+    /**
+     * Adds JavaScript and CSS resources for the default feature set.
+     */
+    public function addResourcesDefault(Request $request, TemplateManager $templateMgr): void
     {
         $templateMgr->addJavaScript(
-            'xmlConverter',
-            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build.iife.js",
+            'XmlConverterDefaultJs',
+            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build-default.iife.js",
+            [
+                'inline' => false,
+                'contexts' => ['backend'],
+                'priority' => TemplateManager::STYLE_SEQUENCE_LAST
+            ]
+        );
+
+        $templateMgr->addStyleSheet('XmlConverterStyle',
+            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build-default.css",
+            [
+                'contexts' => ['backend']
+            ]
+        );
+    }
+
+    /**
+     * Adds JavaScript and CSS resources for the conversion feature set with Java requirement.
+     */
+    public function addResourcesConversions(Request $request, TemplateManager $templateMgr): void
+    {
+        $templateMgr->addJavaScript(
+            'XmlConverterConversionsJs',
+            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build-conversions.iife.js",
             [
                 'inline' => false,
                 'contexts' => ['backend'],
@@ -100,24 +115,9 @@ class XmlConverterPlugin extends GenericPlugin
             ]
         );
     }
-
-    /**
-     * Add/override new api endpoints to existing list of api endpoints
-     */
-    public function addRoute(): void
-    {
-        Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
-            if ($apiController instanceof SubmissionController) {
-                $apiController = new XmlConvertController();
-            }
-
-            return false;
-        });
-    }
-
 }
 
+// For backwards compatibility -- expect this to be removed approx. OJS/OMP/OPS 3.6
 if (!PKP_STRICT_MODE) {
-	// Allow legacy aliasing for backward compatibility
     class_alias('\APP\plugins\generic\xmlConverter\XmlConverterPlugin', '\XmlConverterPlugin');
 }

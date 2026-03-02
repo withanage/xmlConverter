@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <title>Example TEI Document</title>
+            <author>
+                <name>John Doe</name>
+            </author>
+            <publicationStmt>
+                <publisher>Example Publisher</publisher>
+                <date>2023</date>
+            </publicationStmt>
+        </fileDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <p>This is an example paragraph in the TEI document body.</p>
+        </body>
+    </text>
+</TEI>
