@@ -367,7 +367,7 @@ abstract class ServiceFileHandler
         }
     }
 
-    private function writeContentToFile(string $content, string $savePath): void
+    protected function writeContentToFile(string $content, string $savePath): void
     {
         $bytesWritten = file_put_contents($savePath, $content, LOCK_EX);
 

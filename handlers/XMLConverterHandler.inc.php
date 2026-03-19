@@ -108,8 +108,8 @@ class xmlConverterHandler extends Handler
 		import('plugins.generic.xmlConverter.controllers.grid.form.CreateServiceFileForm');
 		$serviceFileForm = new CreateServiceFileForm($request, $this->getPlugin(), $this->publication, $this->submission);
 
+		$serviceFileForm->readInputData();
 		if ($serviceFileForm->validate()) {
-			$serviceFileForm->readInputData();
 			$serviceFileForm->execute();
 
 		} else {

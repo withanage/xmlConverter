@@ -13,7 +13,7 @@ import('plugins.generic.xmlConverter.handlers.ORKGHandlerJATSHeader');
 
 class ORKGFileHandler extends ServiceFileHandler
 {
-    private const ORKG_EXPORT_URL = 'https://orkg.org/simcomp/thing/export';
+    private const ORKG_EXPORT_URL = 'https://orkg.org/api/smart-reviews/';
     private const MIME_TYPE = 'text/xml';
     private string $fileType = 'xml';
 
@@ -71,20 +71,49 @@ class ORKGFileHandler extends ServiceFileHandler
 
     protected function downloadServiceFile(): string
     {
-        $queryParams = http_build_query([
-            'format' => strtoupper($this->getFileTyle()),
-            'thing_key' => parent::getServiceFile(),
-            'thing_type' => 'REVIEW',
-        ]);
-
         $tempFile = parent::createTempFilePath();
-        $downloadUrl = self::ORKG_EXPORT_URL . '?' . $queryParams;
+        $downloadUrl = self::ORKG_EXPORT_URL . parent::getServiceFile();
 
-        if (!$this->downloadFile($downloadUrl, $tempFile)) {
-            throw new RuntimeException('Failed to download file from ORKG service');
+        if (!$this->downloadFileWithHeaders($downloadUrl, $tempFile, ['Accept: application/xml'])) {
+            throw new RuntimeException('Failed to download file from ORKG service. URL: ' . $downloadUrl);
         }
 
         return $tempFile;
+    }
+
+    protected function downloadFileWithHeaders(string $url, string $savePath, array $headers): bool
+    {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_HTTPHEADER => $headers,
+        ]);
+
+        $fileContent = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            throw new RuntimeException('CURL error: ' . $error . ' URL: ' . $url);
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            throw new RuntimeException('HTTP error ' . $httpCode . ' downloading from: ' . $url);
+        }
+
+        $this->modifyContent($fileContent);
+        $this->writeContentToFile($fileContent, $savePath);
+
+        return true;
     }
 
     function getFileTyle(): string
