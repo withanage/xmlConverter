@@ -66,7 +66,7 @@ class OrkgServiceFile extends AbstractServiceFile
             $parts = explode('/', trim($path, '/'));
             $lastPart = end($parts);
 
-            if (preg_match('/^R\d{6}$/', $lastPart)) {  // Assuming 6-digit R numbers
+            if (preg_match('/^R\d+$/', $lastPart)) {
                 return $lastPart;
             }
 
