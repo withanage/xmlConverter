@@ -161,7 +161,8 @@ class TextureArticleGalleyForm extends Form
 
         foreach ($dependentFiles as $dependentFile) {
 
-            $newDependentFileId = Services::get('file')->add($files_dir . $dependentFile->getData('path'), $files_dir . $submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.xml');
+            $dependentFileExt = pathinfo($dependentFile->getData('path'), PATHINFO_EXTENSION);
+            $newDependentFileId = Services::get('file')->add($files_dir . $dependentFile->getData('path'), $files_dir . $submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.' . $dependentFileExt);
 
             $newDependentFile = $submissionFileDao->newDataObject();
 
