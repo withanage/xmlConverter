@@ -11,10 +11,11 @@ Converts JATS-XML and TEI-XML formats in OJS, supporting interoperability betwee
 ```bash
 cd $OJS
 git clone -b stable-3_5_0 https://github.com/withanage/xmlConverter.git plugins/generic/xmlConverter
-php lib/pkp/tools/installPluginVersion.php plugins/generic/xmlConverter/version.xml
+cd plugins/generic/xmlConverter
 npm install
-npm run build         
-
+npm run build
+cd $OJS
+php lib/pkp/tools/installPluginVersion.php plugins/generic/xmlConverter/version.xml
 ```
 
 ## Activation
