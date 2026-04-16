@@ -76,3 +76,6 @@ msgstr "Upload A file from a service"
 
 msgid "plugins.generic.xmlConverter.links.createGalley"
 msgstr "Create Galley"
+
+msgid "plugins.generic.xmlConverter.error.fileNotFound"
+msgstr "The XML file associated with this submission could not be found on the server."

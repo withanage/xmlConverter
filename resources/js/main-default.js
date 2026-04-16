@@ -29,12 +29,6 @@ pkp.registry.storeExtend(
 			return;
 		}
 
-		const DAR_MANIFEST_FILE = 'manifest.xml';
-		const DAR_MANUSCRIPT_FILE = 'manuscript.xml';
-		const FILE_TYPE_DAR = 'dar';
-		const FILE_TYPE_ZIP = 'zip';
-		const FILE_TYPE_HTML = 'html';
-
 		const {useModal} = pkp.modules.useModal;
 		const {useLocalize} = pkp.modules.useLocalize;
 		const {useUrl} = pkp.modules.useUrl;
@@ -79,7 +73,7 @@ pkp.registry.storeExtend(
 
 		fileStore.extender.extendFn('getItemActions', (itemActions, args) => {
 			const localizedName = localize(args.file.name);
-			if (!localizedName.endsWith('.xml') || localizedName !== DAR_MANUSCRIPT_FILE) {
+			if (!localizedName.endsWith('.xml')) {
 				return itemActions;
 			}
 

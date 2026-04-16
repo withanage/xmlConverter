@@ -72,6 +72,12 @@ class ConvertFile
         $fileManager = new PrivateFileManager();
         $filePath = $fileManager->getBasePath() . DIRECTORY_SEPARATOR . $this->submissionFile->getData('path');
 
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'error' => __('plugins.generic.xmlConverter.error.fileNotFound')
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         // Determine the conversion type based on the requested page.
         switch ($this->conversionType) {
             case self::CONVERSION_TEI_TO_JATS:

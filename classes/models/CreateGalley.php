@@ -111,6 +111,11 @@ class CreateGalley
         $files_dir = Config::getVar('files', 'files_dir') . DIRECTORY_SEPARATOR;
 
         $origDocument = new DOMDocument('1.0', 'utf-8');
+        if (!Services::get('file')->fs->fileExists($sourceFile->getData('path'))) {
+            return response()->json([
+                'error' => __('plugins.generic.xmlConverter.error.fileNotFound')
+            ], Response::HTTP_NOT_FOUND);
+        }
         $sourceFileContent = Services::get('file')->fs->read($sourceFile->getData('path'));
         $origDocument->loadXML($sourceFileContent);
 
