@@ -179,45 +179,34 @@ class JATS extends \DOMDocument
 
 
         $articleMeta = $xpath->query("//article/front/article-meta");
-        $licenseUrl = ($licenseUrlOverride !== null && $licenseUrlOverride !== '')
-            ? $licenseUrlOverride
-            : $context->getData('licenseUrl');
-        if (count($articleMeta) > 0 and $licenseUrl) {
+        if (count($articleMeta) > 0) {
 
+            if (!$copyrightYear)
+                $copyrightYear = date('Y');
 
-            PKPString::regexp_match_get('/http[s]?:(www\.)?\/\/creativecommons.org\/licenses\/([a-z]+(-[a-z]+)*)\/(\d.0)\/*([a-z]*).*/i', $licenseUrl, $matches);
-            if (count($matches) > 5 and $matches[2] and $matches[4]) {
+            $permissionNode = $origDocument->createElement('permissions');
+            $copyrightStatementNode = $origDocument->createElement('copyright-statement', '© ' . $copyrightYear . ' The Author(s)');
+            $permissionNode->appendChild($copyrightStatementNode);
+            $copyrightYearNode = $origDocument->createElement('copyright-year', $copyrightYear);
+            $permissionNode->appendChild($copyrightYearNode);
 
-                if (!$copyrightYear)
-                    $copyrightYear = date('Y');
+            $copyrightLicenseNode = $origDocument->createElement('license');
+            $copyrightLicenseNode->setAttribute('license-type', 'open-access');
+            $copyrightLicenseNode->setAttribute('xlink:href', 'https://creativecommons.org/licenses/by/4.0');
+            $copyrightLicenseNode->setAttribute('xml:lang', 'en');
 
-                $permissionNode = $origDocument->createElement('permissions');
-                $copyrightStatementNode = $origDocument->createElement('copyright-statement', '© ' . $copyrightYear . ' The Author(s)');
-                $permissionNode->appendChild($copyrightStatementNode);
-                $copyrightYearNode = $origDocument->createElement('copyright-year', $copyrightYear);
-                $permissionNode->appendChild($copyrightYearNode);
+            $copyrightLicensePNode = $origDocument->createElement('license-p');
 
-                $copyrightLicenseNode = $origDocument->createElement('license');
-                $copyrightLicenseNode->setAttribute('license-type', 'open-access');
-                $copyrightLicenseNode->setAttribute('xlink:href', $licenseUrl);
-                $copyrightLicenseNode->setAttribute('xml:lang', 'en');
+            $inlineGraphicNode = $origDocument->createElement('inline-graphic');
+            $inlineGraphicNode->setAttribute('xlink:href', 'https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by.svg');
+            $copyrightLicensePNode->appendChild($inlineGraphicNode);
 
-                $copyrightLicensePNode = $origDocument->createElement('license-p');
+            $licensePTextNode = $origDocument->createTextNode('This work is published under the Creative Commons License 4.0 (CC BY 4.0).');
 
-                $inlineGraphicNode = $origDocument->createElement('inline-graphic');
-                $inlineGraphicNode->setAttribute('xlink:href', 'https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/' . $matches[2] . '.svg');
-                $copyrightLicensePNode->appendChild($inlineGraphicNode);
-
-                $countryCode = $matches[5] ? strtoupper($matches[5]) : '';
-                $isoCodes = new \Sokil\IsoCodes\IsoCodesFactory();
-                $country = $isoCodes->getCountries()->getByAlpha2($countryCode) ? $isoCodes->getCountries()->getByAlpha2($countryCode)->getName() : '';
-                $licensePTextNode = $origDocument->createTextNode("This work is published under the Creative Commons  {$country} License {$matches[4]} (CC BY {$matches[4]} {$countryCode}).");
-
-                $copyrightLicensePNode->appendChild($licensePTextNode);
-                $copyrightLicenseNode->appendChild($copyrightLicensePNode);
-                $permissionNode->appendChild($copyrightLicenseNode);
-                $articleMeta[0]->appendChild($permissionNode);
-            }
+            $copyrightLicensePNode->appendChild($licensePTextNode);
+            $copyrightLicenseNode->appendChild($copyrightLicensePNode);
+            $permissionNode->appendChild($copyrightLicenseNode);
+            $articleMeta[0]->appendChild($permissionNode);
         }
 
     }

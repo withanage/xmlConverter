@@ -54,13 +54,6 @@ class GeneratePublicationXmlForm extends Form
         $journalTitle = $context ? trim((string)$context->getLocalizedName()) : '';
         $articleTitle = $this->publication ? trim((string)$this->publication->getLocalizedTitle()) : '';
 
-        $licenseUrl = $licenseSource = '';
-        if ($this->publication && ($pubLic = trim((string)$this->publication->getData('licenseUrl'))) !== '') {
-            $licenseUrl = $pubLic; $licenseSource = 'publication';
-        } elseif ($context && ($jLic = trim((string)$context->getData('licenseUrl'))) !== '') {
-            $licenseUrl = $jLic; $licenseSource = 'journal';
-        }
-
         $datePublished = $this->publication ? $this->publication->getData('datePublished') : null;
         $dateSubmitted = $this->submission ? $this->submission->getData('dateSubmitted') : null;
         $copyrightYear = $datePublished ? date('Y', strtotime($datePublished)) : date('Y');
@@ -121,11 +114,11 @@ class GeneratePublicationXmlForm extends Form
             ],
             'permissions' => [
                 'label'   => __('plugins.generic.xmlConverter.generate.preview.permissions'),
-                'missing' => $licenseUrl === '',
-                'lines'   => $licenseUrl !== '' ? [
-                    'license: ' . $licenseUrl . ' (' . __('plugins.generic.xmlConverter.generate.preview.source.' . $licenseSource) . ')',
+                'missing' => false,
+                'lines'   => [
+                    'license: https://creativecommons.org/licenses/by/4.0',
                     'copyright-year: ' . $copyrightYear,
-                ] : [],
+                ],
             ],
             'contribGroup' => [
                 'label'   => __('plugins.generic.xmlConverter.generate.preview.contribGroup'),
