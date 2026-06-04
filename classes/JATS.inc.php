@@ -99,10 +99,15 @@ class JATS extends \DOMDocument
         }
 
         $dateAccepted = null;
+        $reviewStages = [WORKFLOW_STAGE_ID_INTERNAL_REVIEW, WORKFLOW_STAGE_ID_EXTERNAL_REVIEW];
         $decisions = $editDecisionDao->getEditorDecisions($submission->getId());
         foreach ($decisions as $decision) {
-            if ($decision['stageId'] == WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT)
-                $dateAccepted = $decision['dateDecided'];
+            if ($decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT
+                && in_array($decision['stageId'], $reviewStages)) {
+                if (!$dateAccepted || strtotime($decision['dateDecided']) > strtotime($dateAccepted)) {
+                    $dateAccepted = $decision['dateDecided'];
+                }
+            }
         }
         if ($dateAccepted) {
             $history->appendChild(self::getDate($origDocument, $dateAccepted, 'accepted'));
