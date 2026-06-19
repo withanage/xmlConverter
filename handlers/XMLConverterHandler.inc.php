@@ -609,16 +609,53 @@ class xmlConverterHandler extends Handler
 
 	private function buildPublicationFileName($sourceFile): array
 	{
+		$submissionId = $this->submission->getId();
+		$base = $this->buildAuthorBaseName($submissionId);
+
 		$names = $sourceFile->getData('name');
 		$out = [];
 		if (is_array($names)) {
-			foreach ($names as $locale => $name) {
-				$out[$locale] = pathinfo($name, PATHINFO_FILENAME) . '-publication.xml';
+			foreach (array_keys($names) as $locale) {
+				$out[$locale] = $base . '.xml';
 			}
 		} else {
-			$locale = $sourceFile->getData('locale');
-			$out[$locale] = pathinfo($names, PATHINFO_FILENAME) . '-publication.xml';
+			$out[$sourceFile->getData('locale')] = $base . '.xml';
 		}
 		return $out;
+	}
+
+	private function buildAuthorBaseName($submissionId): string
+	{
+		$authors = $this->publication ? $this->publication->getData('authors') : null;
+		$locale = $this->publication
+			? ($this->publication->getData('locale') ?: AppLocale::getLocale())
+			: AppLocale::getLocale();
+
+		$lastNames = [];
+		if ($authors && (is_array($authors) || $authors instanceof Traversable)) {
+			foreach ($authors as $a) {
+				$fam = $this->sanitizeNamePart((string)$a->getLocalizedFamilyName($locale));
+				if ($fam !== '') $lastNames[] = $fam;
+			}
+		}
+
+		$count = count($lastNames);
+		if ($count === 0) return (string)$submissionId;
+		if ($count === 1) return $submissionId . '_' . $lastNames[0];
+		if ($count === 2) return $submissionId . '_' . $lastNames[0] . '_and_' . $lastNames[1];
+		return $submissionId . '_' . $lastNames[0] . '_et_al';
+	}
+
+	private function sanitizeNamePart(string $name): string
+	{
+		$name = trim($name);
+		if ($name === '') return '';
+		if (function_exists('iconv')) {
+			$t = @iconv('UTF-8', 'ASCII//TRANSLIT', $name);
+			if ($t !== false) $name = $t;
+		}
+		$name = preg_replace('/\s+/', '_', $name);
+		$name = preg_replace('/[^A-Za-z0-9_-]/', '', $name);
+		return trim($name, '_');
 	}
 }
