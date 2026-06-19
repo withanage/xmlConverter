@@ -627,14 +627,14 @@ class xmlConverterHandler extends Handler
 	private function buildAuthorBaseName($submissionId): string
 	{
 		$authors = $this->publication ? $this->publication->getData('authors') : null;
-		$locale = $this->publication
-			? ($this->publication->getData('locale') ?: AppLocale::getLocale())
-			: AppLocale::getLocale();
 
 		$lastNames = [];
 		if ($authors && (is_array($authors) || $authors instanceof Traversable)) {
 			foreach ($authors as $a) {
-				$fam = $this->sanitizeNamePart((string)$a->getLocalizedFamilyName($locale));
+				$fam = $this->sanitizeNamePart((string)$a->getLocalizedFamilyName());
+				if ($fam === '') {
+					$fam = $this->sanitizeNamePart((string)$a->getLocalizedGivenName());
+				}
 				if ($fam !== '') $lastNames[] = $fam;
 			}
 		}
