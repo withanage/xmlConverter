@@ -80,6 +80,27 @@ class JATS extends \DOMDocument
     }
 
 
+    public static function selectAcceptedDate(array $decisions): ?string
+    {
+        $acceptStages = [
+            WORKFLOW_STAGE_ID_SUBMISSION,
+            WORKFLOW_STAGE_ID_INTERNAL_REVIEW,
+            WORKFLOW_STAGE_ID_EXTERNAL_REVIEW,
+        ];
+
+        $dateAccepted = null;
+        foreach ($decisions as $decision) {
+            if ($decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT
+                && in_array($decision['stageId'], $acceptStages)
+                && !empty($decision['dateDecided'])) {
+                if (!$dateAccepted || strtotime($decision['dateDecided']) > strtotime($dateAccepted)) {
+                    $dateAccepted = $decision['dateDecided'];
+                }
+            }
+        }
+        return $dateAccepted;
+    }
+
     public static function getArticleMetaHistory(DOMDocument $origDocument, Submission $submission, $datePublished = null): void
     {
 
@@ -98,17 +119,8 @@ class JATS extends \DOMDocument
             $history->appendChild($dateReceived);
         }
 
-        $dateAccepted = null;
-        $reviewStages = [WORKFLOW_STAGE_ID_INTERNAL_REVIEW, WORKFLOW_STAGE_ID_EXTERNAL_REVIEW];
         $decisions = $editDecisionDao->getEditorDecisions($submission->getId());
-        foreach ($decisions as $decision) {
-            if ($decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT
-                && in_array($decision['stageId'], $reviewStages)) {
-                if (!$dateAccepted || strtotime($decision['dateDecided']) > strtotime($dateAccepted)) {
-                    $dateAccepted = $decision['dateDecided'];
-                }
-            }
-        }
+        $dateAccepted = self::selectAcceptedDate($decisions);
         if ($dateAccepted) {
             $history->appendChild(self::getDate($origDocument, $dateAccepted, 'accepted'));
         }
