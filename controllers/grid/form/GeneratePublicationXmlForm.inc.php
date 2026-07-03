@@ -58,6 +58,13 @@ class GeneratePublicationXmlForm extends Form
         $dateSubmitted = $this->submission ? $this->submission->getData('dateSubmitted') : null;
         $copyrightYear = $datePublished ? date('Y', strtotime($datePublished)) : date('Y');
 
+        $dateAccepted = null;
+        if ($this->submission) {
+            import('plugins.generic.xmlConverter.classes.JATS');
+            $editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+            $dateAccepted = JATS::selectAcceptedDate($editDecisionDao->getEditorDecisions($this->submission->getId()));
+        }
+
         $pagesRaw = $this->publication ? trim((string)$this->publication->getData('pages')) : '';
         $fpage = $lpage = '';
         if (preg_match('/^(\d+)\s*[-\x{2013}\x{2014}]\s*(\d+)/u', $pagesRaw, $m)) {
@@ -106,9 +113,10 @@ class GeneratePublicationXmlForm extends Form
             ],
             'history' => [
                 'label'   => __('plugins.generic.xmlConverter.generate.preview.history'),
-                'missing' => empty($dateSubmitted) && empty($datePublished),
+                'missing' => empty($dateSubmitted) && empty($dateAccepted) && empty($datePublished),
                 'lines'   => array_filter([
                     $dateSubmitted ? 'received: ' . date('Y-m-d', strtotime($dateSubmitted)) : null,
+                    $dateAccepted ? 'accepted: ' . date('Y-m-d', strtotime($dateAccepted)) : null,
                     $datePublished ? 'published: ' . date('Y-m-d', strtotime($datePublished)) : null,
                 ]),
             ],

@@ -83,8 +83,6 @@ class JATS extends \DOMDocument
     public static function selectAcceptedDate(array $decisions): ?string
     {
         $acceptStages = [
-            WORKFLOW_STAGE_ID_SUBMISSION,
-            WORKFLOW_STAGE_ID_INTERNAL_REVIEW,
             WORKFLOW_STAGE_ID_EXTERNAL_REVIEW,
         ];
 
